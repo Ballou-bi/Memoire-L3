@@ -20,6 +20,7 @@
 html {
   scroll-behavior: smooth;
 }
+
 body {
   background: var(--navy);
   color: var(--cream);
@@ -27,6 +28,7 @@ body {
   font-weight: 300;
   overflow-x: hidden;
 }
+
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -38,10 +40,13 @@ body {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
+
+/* ── Layout dashboard ─────────────────────────────────────────────────────── */
 .db-layout {
   display: flex;
   min-height: 100vh;
 }
+
 .db-main {
   flex: 1;
   margin-left: var(--sidebar-width);
@@ -49,12 +54,15 @@ body {
   flex-direction: column;
   min-height: 100vh;
 }
+
 .db-content {
   flex: 1;
   padding: 2rem;
   max-width: 1200px;
   width: 100%;
 }
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -84,11 +92,80 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.3s ease both;
 }
+
+/* ── Stats grid — 4 colonnes desktop ─────────────────────────────────────── */
+.stats-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+/* ── Mobile (≤ 768px) ────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .db-main {
-    margin-left: 0;
+  /* Sidebar desktop cachée */
+  .sidebar-desktop {
+    display: none !important;
   }
+
+  /* Barre top mobile visible */
+  .sidebar-mobile-bar {
+    display: flex !important;
+  }
+
+  /* Décalage du contenu principal */
+  .db-main {
+    margin-left: 0 !important;
+    padding-top: 56px; /* hauteur de la barre mobile */
+  }
+
+  /* Padding réduit */
   .db-content {
-    padding: 1rem;
+    padding: 1.25rem 1rem;
+  }
+
+  /* Stats — 2 colonnes sur mobile */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Tableau desktop caché, cards mobiles visibles */
+  .declarations-desktop {
+    display: none !important;
+  }
+  .declarations-mobile {
+    display: flex !important;
+  }
+
+  /* Header sticky descend sous la barre mobile */
+  header[style] {
+    top: 56px !important;
+  }
+}
+
+/* ── Tablette (769px – 1024px) ───────────────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .db-content {
+    padding: 1.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── Desktop (> 768px) ───────────────────────────────────────────────────── */
+@media (min-width: 769px) {
+  .sidebar-desktop {
+    display: flex !important;
+  }
+
+  .sidebar-mobile-bar {
+    display: none !important;
+  }
+
+  .declarations-desktop {
+    display: block !important;
+  }
+
+  .declarations-mobile {
+    display: none !important;
   }
 }

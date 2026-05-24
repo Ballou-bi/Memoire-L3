@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
@@ -11,6 +12,7 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
+// ── Icônes ───────────────────────────────────────────────────────────────────
 const IconHome = () => (
   <svg
     width="18"
@@ -120,6 +122,37 @@ const IconPlus = () => (
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
+const IconX = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+const IconMenu = () => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
 
 const navByRole: Record<Role, NavItem[]> = {
   CITOYEN: [
@@ -164,32 +197,21 @@ const roleLabel: Record<Role, string> = {
   ADMIN: "Administration",
 };
 
-export default function Sidebar({
+// ── Contenu de la sidebar (réutilisé desktop + mobile) ───────────────────────
+function SidebarContent({
   role,
   userName,
+  onLinkClick,
 }: {
   role: Role;
   userName: string;
+  onLinkClick?: () => void;
 }) {
   const pathname = usePathname();
   const items = navByRole[role];
 
   return (
-    <aside
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        bottom: 0,
-        width: "var(--sidebar-width)",
-        background: "rgba(10,22,40,0.98)",
-        borderRight: "1px solid rgba(201,168,76,0.12)",
-        display: "flex",
-        flexDirection: "column",
-        zIndex: 50,
-        backdropFilter: "blur(16px)",
-      }}
-    >
+    <>
       {/* Logo */}
       <div
         style={{
@@ -197,7 +219,7 @@ export default function Sidebar({
           borderBottom: "1px solid rgba(201,168,76,0.1)",
         }}
       >
-        <Link href="/" style={{ textDecoration: "none" }}>
+        <Link href="/" style={{ textDecoration: "none" }} onClick={onLinkClick}>
           <span
             style={{
               fontFamily: "'Cormorant Garamond', serif",
@@ -239,6 +261,7 @@ export default function Sidebar({
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onLinkClick}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -301,6 +324,178 @@ export default function Sidebar({
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+}
+
+// ── Sidebar principale ────────────────────────────────────────────────────────
+export default function Sidebar({
+  role,
+  userName,
+}: {
+  role: Role;
+  userName: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Fermer le menu mobile à chaque changement de page
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Bloquer le scroll du body quand le menu est ouvert
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  return (
+    <>
+      {/* ── DESKTOP — sidebar fixe ──────────────────────────────────────── */}
+      <aside
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: "var(--sidebar-width)",
+          background: "rgba(10,22,40,0.98)",
+          borderRight: "1px solid rgba(201,168,76,0.12)",
+          display: "flex",
+          flexDirection: "column",
+          zIndex: 50,
+          backdropFilter: "blur(16px)",
+          // Caché sur mobile
+          visibility: "visible",
+        }}
+        className="sidebar-desktop"
+      >
+        <SidebarContent role={role} userName={userName} />
+      </aside>
+
+      {/* ── MOBILE — barre top avec hamburger ──────────────────────────── */}
+      <div
+        className="sidebar-mobile-bar"
+        style={{
+          display: "none", // affiché via CSS media query dans globals.css
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "56px",
+          background: "rgba(10,22,40,0.97)",
+          borderBottom: "1px solid rgba(201,168,76,0.12)",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 1.25rem",
+          zIndex: 60,
+          backdropFilter: "blur(16px)",
+        }}
+      >
+        {/* Logo mobile */}
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <span
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: "1.25rem",
+              fontWeight: 700,
+              color: "var(--gold)",
+            }}
+          >
+            wa<span style={{ color: "var(--cream)" }}>ya</span>
+          </span>
+        </Link>
+
+        {/* Bouton hamburger */}
+        <button
+          onClick={() => setIsOpen(true)}
+          style={{
+            background: "transparent",
+            border: "1px solid rgba(201,168,76,0.2)",
+            borderRadius: "4px",
+            padding: "0.4rem",
+            color: "var(--cream)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          aria-label="Ouvrir le menu"
+        >
+          <IconMenu />
+        </button>
+      </div>
+
+      {/* ── MOBILE — drawer overlay ─────────────────────────────────────── */}
+      {/* Fond sombre */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            zIndex: 70,
+            backdropFilter: "blur(2px)",
+            animation: "fadeIn 0.2s ease",
+          }}
+        />
+      )}
+
+      {/* Drawer */}
+      <aside
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: "280px",
+          background: "rgba(10,22,40,0.99)",
+          borderRight: "1px solid rgba(201,168,76,0.15)",
+          display: "flex",
+          flexDirection: "column",
+          zIndex: 80,
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        {/* Bouton fermer */}
+        <button
+          onClick={() => setIsOpen(false)}
+          style={{
+            position: "absolute",
+            top: "1rem",
+            right: "1rem",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(201,168,76,0.2)",
+            borderRadius: "4px",
+            padding: "0.35rem",
+            color: "var(--cream)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1,
+          }}
+          aria-label="Fermer le menu"
+        >
+          <IconX />
+        </button>
+
+        <SidebarContent
+          role={role}
+          userName={userName}
+          onLinkClick={() => setIsOpen(false)}
+        />
+      </aside>
+    </>
   );
 }

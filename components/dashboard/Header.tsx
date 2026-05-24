@@ -8,7 +8,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
   return (
     <header
       style={{
-        padding: "1.5rem 2rem",
+        padding: "1.25rem 2rem",
         borderBottom: "1px solid rgba(201,168,76,0.1)",
         display: "flex",
         alignItems: "center",
@@ -20,14 +20,17 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
         zIndex: 10,
       }}
     >
-      <div>
+      <div style={{ minWidth: 0 }}>
         <h1
           style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: "1.6rem",
+            fontSize: "clamp(1.2rem, 4vw, 1.6rem)",
             fontWeight: 600,
             color: "var(--cream)",
             lineHeight: 1.1,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
           }}
         >
           {title}
@@ -35,10 +38,13 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
         {subtitle && (
           <p
             style={{
-              fontSize: "0.8rem",
+              fontSize: "0.78rem",
               color: "var(--cream)",
               opacity: 0.5,
-              marginTop: "0.25rem",
+              marginTop: "0.2rem",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {subtitle}
@@ -46,7 +52,15 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
         )}
       </div>
       {actions && (
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "0.75rem",
+            alignItems: "center",
+            flexShrink: 0,
+            marginLeft: "1rem",
+          }}
+        >
           {actions}
         </div>
       )}

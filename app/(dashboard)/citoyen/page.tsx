@@ -27,10 +27,6 @@ export default async function CitoyenDashboard() {
   });
 
   if (!user) redirect("/sign-in");
-
-  // ── Redirection selon le rôle DB ─────────────────────────────────────────
-  // Si l'admin a changé le rôle en DB mais que le proxy n'a pas encore
-  // redirigé (session Clerk pas encore expirée), on redirige manuellement
   if (user.role === "OFFICIER") redirect("/officier");
   if (user.role === "ADMIN") redirect("/admin");
 
@@ -54,31 +50,30 @@ export default async function CitoyenDashboard() {
         subtitle="Gérez vos déclarations et extraits de naissance"
         actions={
           <Link href="/citoyen/declaration/new">
-            <Button size="sm">+ Nouvelle déclaration</Button>
+            <Button size="sm">+ Nouvelle</Button>
           </Link>
         }
       />
 
       <div className="db-content animate-fade-up">
+        {/* ── Stats ── responsive 2 colonnes sur mobile, 4 sur desktop */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "1rem",
-            marginBottom: "2.5rem",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "0.75rem",
+            marginBottom: "2rem",
           }}
+          className="stats-grid"
         >
           <StatsCard label="Déclarations" value={total} color="gold" />
           <StatsCard label="Validées" value={validees} color="green" />
           <StatsCard label="En attente" value={enAttente} color="blue" />
-          <StatsCard
-            label="Extraits obtenus"
-            value={totalExtraits}
-            color="gold"
-          />
+          <StatsCard label="Extraits" value={totalExtraits} color="gold" />
         </div>
 
-        <section style={{ marginBottom: "2.5rem" }}>
+        {/* ── Déclarations récentes ── */}
+        <section style={{ marginBottom: "2rem" }}>
           <div
             style={{
               display: "flex",
@@ -90,7 +85,7 @@ export default async function CitoyenDashboard() {
             <h2
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "1.25rem",
+                fontSize: "1.2rem",
                 fontWeight: 600,
               }}
             >
@@ -103,6 +98,7 @@ export default async function CitoyenDashboard() {
                 color: "var(--gold)",
                 textDecoration: "none",
                 opacity: 0.8,
+                whiteSpace: "nowrap",
               }}
             >
               Voir tout →
@@ -120,118 +116,179 @@ export default async function CitoyenDashboard() {
               }
             />
           ) : (
-            <div
-              style={{
-                border: "1px solid rgba(201,168,76,0.1)",
-                borderRadius: "4px",
-                overflow: "hidden",
-              }}
-            >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: "1px solid rgba(201,168,76,0.1)",
-                      background: "rgba(255,255,255,0.02)",
-                    }}
+            <>
+              {/* ── Version mobile — cards ── */}
+              <div
+                className="declarations-mobile"
+                style={{
+                  display: "none",
+                  flexDirection: "column",
+                  gap: "0.75rem",
+                }}
+              >
+                {user.declarations.map((d) => (
+                  <Link
+                    key={d.id}
+                    href={`/citoyen/declaration/${d.id}`}
+                    style={{ textDecoration: "none" }}
                   >
-                    {[
-                      "Enfant",
-                      "Date de naissance",
-                      "Lieu",
-                      "Statut",
-                      "N° Acte",
-                      "Actions",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        style={{
-                          padding: "0.75rem 1rem",
-                          textAlign: "left",
-                          fontSize: "0.65rem",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.1em",
-                          color: "var(--gold)",
-                          opacity: 0.7,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {user.declarations.map((d, i) => (
-                    <tr
-                      key={d.id}
+                    <div
                       style={{
-                        borderBottom:
-                          i < user.declarations.length - 1
-                            ? "1px solid rgba(201,168,76,0.06)"
-                            : "none",
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(201,168,76,0.1)",
+                        borderRadius: "4px",
+                        padding: "1rem",
                       }}
                     >
-                      <td
+                      <div
                         style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.85rem",
-                          fontWeight: 500,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          marginBottom: "0.5rem",
                         }}
                       >
-                        {d.prenomEnfant} {d.nomEnfant}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.82rem",
-                          opacity: 0.65,
-                        }}
-                      >
-                        {formatDate(d.dateNaissance)}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.82rem",
-                          opacity: 0.65,
-                        }}
-                      >
-                        {d.lieuNaissance}
-                      </td>
-                      <td style={{ padding: "0.875rem 1rem" }}>
+                        <div style={{ fontWeight: 500, fontSize: "0.9rem" }}>
+                          {d.prenomEnfant} {d.nomEnfant}
+                        </div>
                         <StatusBadge statut={d.statut} />
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.78rem",
-                          color: "var(--gold)",
-                          opacity: 0.7,
-                        }}
-                      >
-                        {d.acte?.numero ?? "—"}
-                      </td>
-                      <td style={{ padding: "0.875rem 1rem" }}>
-                        <Link
-                          href={`/citoyen/declaration/${d.id}`}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", opacity: 0.5 }}>
+                        {formatDate(d.dateNaissance)} · {d.lieuNaissance}
+                      </div>
+                      {d.acte && (
+                        <div
                           style={{
-                            fontSize: "0.75rem",
+                            fontSize: "0.72rem",
                             color: "var(--gold)",
-                            textDecoration: "none",
+                            opacity: 0.7,
+                            marginTop: "0.3rem",
                           }}
                         >
-                          Voir →
-                        </Link>
-                      </td>
+                          N° {d.acte.numero}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* ── Version desktop — tableau ── */}
+              <div
+                className="declarations-desktop"
+                style={{
+                  border: "1px solid rgba(201,168,76,0.1)",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                }}
+              >
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr
+                      style={{
+                        borderBottom: "1px solid rgba(201,168,76,0.1)",
+                        background: "rgba(255,255,255,0.02)",
+                      }}
+                    >
+                      {[
+                        "Enfant",
+                        "Date de naissance",
+                        "Lieu",
+                        "Statut",
+                        "N° Acte",
+                        "Actions",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          style={{
+                            padding: "0.75rem 1rem",
+                            textAlign: "left",
+                            fontSize: "0.65rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em",
+                            color: "var(--gold)",
+                            opacity: 0.7,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {user.declarations.map((d, i) => (
+                      <tr
+                        key={d.id}
+                        style={{
+                          borderBottom:
+                            i < user.declarations.length - 1
+                              ? "1px solid rgba(201,168,76,0.06)"
+                              : "none",
+                        }}
+                      >
+                        <td
+                          style={{
+                            padding: "0.875rem 1rem",
+                            fontSize: "0.85rem",
+                            fontWeight: 500,
+                          }}
+                        >
+                          {d.prenomEnfant} {d.nomEnfant}
+                        </td>
+                        <td
+                          style={{
+                            padding: "0.875rem 1rem",
+                            fontSize: "0.82rem",
+                            opacity: 0.65,
+                          }}
+                        >
+                          {formatDate(d.dateNaissance)}
+                        </td>
+                        <td
+                          style={{
+                            padding: "0.875rem 1rem",
+                            fontSize: "0.82rem",
+                            opacity: 0.65,
+                          }}
+                        >
+                          {d.lieuNaissance}
+                        </td>
+                        <td style={{ padding: "0.875rem 1rem" }}>
+                          <StatusBadge statut={d.statut} />
+                        </td>
+                        <td
+                          style={{
+                            padding: "0.875rem 1rem",
+                            fontSize: "0.78rem",
+                            color: "var(--gold)",
+                            opacity: 0.7,
+                          }}
+                        >
+                          {d.acte?.numero ?? "—"}
+                        </td>
+                        <td style={{ padding: "0.875rem 1rem" }}>
+                          <Link
+                            href={`/citoyen/declaration/${d.id}`}
+                            style={{
+                              fontSize: "0.75rem",
+                              color: "var(--gold)",
+                              textDecoration: "none",
+                            }}
+                          >
+                            Voir →
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </section>
 
+        {/* ── Extraits récents ── */}
         {user.extraits.length > 0 && (
           <section>
             <div
@@ -245,7 +302,7 @@ export default async function CitoyenDashboard() {
               <h2
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "1.25rem",
+                  fontSize: "1.2rem",
                   fontWeight: 600,
                 }}
               >
@@ -258,6 +315,7 @@ export default async function CitoyenDashboard() {
                   color: "var(--gold)",
                   textDecoration: "none",
                   opacity: 0.8,
+                  whiteSpace: "nowrap",
                 }}
               >
                 Voir tout →
@@ -266,8 +324,8 @@ export default async function CitoyenDashboard() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "1rem",
+                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                gap: "0.75rem",
               }}
             >
               {user.extraits.map((e) => (
@@ -290,7 +348,7 @@ export default async function CitoyenDashboard() {
                       marginBottom: "0.4rem",
                     }}
                   >
-                    {e.type.replace("_", " ")}
+                    {e.type.replace(/_/g, " ")}
                   </div>
                   <div style={{ fontSize: "0.78rem", opacity: 0.5 }}>
                     {formatDate(e.createdAt)}
