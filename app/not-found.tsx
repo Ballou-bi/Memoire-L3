@@ -43,7 +43,7 @@ export default function NotFound() {
           color: "var(--cream)",
           opacity: 0.5,
           maxWidth: "360px",
-          lineHeight: 1.7,
+          lineHeight: 1.8,
         }}
       >
         La page que vous recherchez n&apos;existe pas ou a été déplacée.
