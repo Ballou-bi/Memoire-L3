@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireRole } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth";
 import { withErrorHandler } from "@/lib/utils";
 import { ExtraitRequestSchema, PaginationSchema } from "@/lib/validations";
 

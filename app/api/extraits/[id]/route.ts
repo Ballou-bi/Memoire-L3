@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { withErrorHandler } from "@/lib/utils";
 

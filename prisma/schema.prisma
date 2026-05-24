@@ -1,17 +1,18 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// ─────────────────────────────────────────────────────────────────────────────
+// RegistreNatal — schema.prisma
+// Compatible : Prisma 7.x · PostgreSQL (Neon serverless)
+// ─────────────────────────────────────────────────────────────────────────────
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-}
 
+  // Décommenter si tu utilises le connection pooling Neon en production :
+  // directUrl = env("DIRECT_URL")
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENUMS
@@ -37,15 +38,11 @@ enum TypeExtrait {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // USER
-// Créé automatiquement via le webhook Clerk (user.created)
-// Mis à jour via webhook (user.updated)
-// Supprimé via webhook (user.deleted)
-// Utilisé par : requireAuth(), requireRole(), toutes les API routes
 // ─────────────────────────────────────────────────────────────────────────────
 
 model User {
   id        String   @id @default(cuid())
-  clerkId   String   @unique           // ID Clerk — lien entre Clerk et la DB
+  clerkId   String   @unique
   email     String   @unique
   nom       String
   prenom    String
@@ -53,11 +50,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
-  declarations Declaration[] @relation("CitoyenDeclarations")  // déclarations soumises par ce citoyen
-  validations  Declaration[] @relation("OfficierValidations")  // déclarations traitées par cet officier
-  extraits     Extrait[]                                       // extraits demandés par cet utilisateur
-  logs         AuditLog[]                                      // actions de cet utilisateur
+  declarations Declaration[] @relation("CitoyenDeclarations")
+  validations  Declaration[] @relation("OfficierValidations")
+  extraits     Extrait[]
+  logs         AuditLog[]
 
   @@index([clerkId])
   @@index([role])
@@ -66,13 +62,6 @@ model User {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DECLARATION
-// Soumise par un citoyen, traitée par un officier
-// Utilisée par :
-//   GET  /api/declarations        → liste filtrée par rôle
-//   POST /api/declarations        → créer (citoyen)
-//   GET  /api/declarations/[id]   → détail
-//   DELETE /api/declarations/[id] → supprimer (citoyen si EN_ATTENTE, admin toujours)
-//   POST /api/declarations/[id]/validate → valider ou rejeter (officier/admin)
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Declaration {
@@ -95,19 +84,27 @@ model Declaration {
   lieuNaissance String
   sexe          String   // "M" | "F"
 
-  // ── Filiation ─────────────────────────────────────────────────────────────
-  nomPere    String
-  prenomPere String
-  nomMere    String
-  prenomMere String
+  // ── Filiation — Père ──────────────────────────────────────────────────────
+  nomPere         String
+  prenomPere      String
+  professionPere  String?  // ← NOUVEAU
+  nationalitePere String?  // ← NOUVEAU
+  residencePere   String?  // ← NOUVEAU
+
+  // ── Filiation — Mère ──────────────────────────────────────────────────────
+  nomMere         String
+  prenomMere      String
+  professionMere  String?  // ← NOUVEAU
+  nationaliteMere String?  // ← NOUVEAU
+  residenceMere   String?  // ← NOUVEAU
 
   // ── Statut ────────────────────────────────────────────────────────────────
   statut     StatutDeclaration @default(EN_ATTENTE)
-  motifRejet String?           // renseigné uniquement si statut = REJETEE
+  motifRejet String?
 
   // Relations enfants
-  acte    Acte?     // créé lors de la validation
-  extraits Extrait[] // extraits demandés sur cette déclaration
+  acte     Acte?
+  extraits Extrait[]
 
   @@index([citoyenId])
   @@index([officierId])
@@ -119,47 +116,32 @@ model Declaration {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ACTE
-// Créé automatiquement lors de la validation d'une déclaration (transaction Prisma)
-// Contient le numéro d'acte officiel généré par generateNumeroActe()
-// Utilisé par :
-//   POST /api/declarations/[id]/validate → créé dans la transaction
-//   GET  /api/declarations/[id]          → inclus dans la réponse
-//   GET  /api/extraits/[id]/pdf          → numéro affiché sur le PDF
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Acte {
   id             String   @id @default(cuid())
-  numero         String   @unique  // ex: "ACT-2025-ABC123-XY"
+  numero         String   @unique
   dateValidation DateTime @default(now())
 
-  // Relation
   declaration   Declaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
-  declarationId String      @unique  // 1 déclaration → 1 acte max
+  declarationId String      @unique
 
   @@index([numero])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EXTRAIT
-// Demande d'extrait sur une déclaration validée
-// Utilisé par :
-//   GET  /api/extraits          → liste (filtrée par rôle)
-//   POST /api/extraits          → créer une demande
-//   GET  /api/extraits/[id]     → détail
-//   GET  /api/extraits/[id]/pdf → génère le PDF et le stream
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Extrait {
   id        String      @id @default(cuid())
   type      TypeExtrait
-  pdfUrl    String?     // URL de stockage si on sauvegarde le PDF (optionnel)
+  pdfUrl    String?
   createdAt DateTime    @default(now())
 
-  // Relation utilisateur (celui qui a fait la demande)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
-  // Relation déclaration
   declaration   Declaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
   declarationId String
 
@@ -170,23 +152,14 @@ model Extrait {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDITLOG
-// Trace toutes les actions importantes pour la supervision admin
-// Utilisé par :
-//   POST /api/declarations              → DECLARATION_CREEE
-//   DELETE /api/declarations/[id]       → DECLARATION_SUPPRIMEE
-//   POST /api/declarations/[id]/validate → DECLARATION_VALIDEE | DECLARATION_REJETEE
-//   POST /api/extraits                  → EXTRAIT_DEMANDE
-//   GET  /api/extraits/[id]/pdf         → EXTRAIT_TELECHARGE
-//   PATCH /api/users/[id]/role          → ROLE_MODIFIE
 // ─────────────────────────────────────────────────────────────────────────────
 
 model AuditLog {
   id        String   @id @default(cuid())
-  action    String   // ex: "DECLARATION_CREEE", "DECLARATION_VALIDEE", etc.
-  details   Json?    // données contextuelles (declarationId, motif, etc.)
+  action    String
+  details   Json?
   createdAt DateTime @default(now())
 
-  // Relation utilisateur
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 

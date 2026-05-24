@@ -2,10 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { withErrorHandler } from "@/lib/utils";
 
-// ─────────────────────────────────────────
-// GET /api/extraits/[id]/pdf
-// Génère et retourne le PDF en streaming
-// ─────────────────────────────────────────
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -18,7 +14,26 @@ export async function GET(
       where: { id },
       include: {
         declaration: {
-          include: {
+          select: {
+            // Enfant
+            nomEnfant: true,
+            prenomEnfant: true,
+            dateNaissance: true,
+            lieuNaissance: true,
+            sexe: true,
+            // Père — nouveaux champs
+            nomPere: true,
+            prenomPere: true,
+            professionPere: true,
+            nationalitePere: true,
+            residencePere: true,
+            // Mère — nouveaux champs
+            nomMere: true,
+            prenomMere: true,
+            professionMere: true,
+            nationaliteMere: true,
+            residenceMere: true,
+            // Relations
             acte: true,
             citoyen: { select: { nom: true, prenom: true } },
           },
@@ -40,8 +55,9 @@ export async function GET(
     }
 
     const { generatePDF } = await import("@/lib/pdf");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfBuffer = await generatePDF(extrait as any);
+    const pdfBuffer = await generatePDF(
+      extrait as Parameters<typeof generatePDF>[0],
+    );
 
     await prisma.auditLog.create({
       data: {
@@ -56,7 +72,6 @@ export async function GET(
         .toLowerCase()
         .replace(/\s+/g, "-");
 
-    // Conversion Buffer → Uint8Array pour compatibilité avec la Web API Response
     return new Response(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",

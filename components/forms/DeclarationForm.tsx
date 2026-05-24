@@ -5,15 +5,24 @@ import { useRouter } from "next/navigation";
 import { Button, Input, Select } from "@/components/ui";
 
 interface FormData {
+  // Enfant
   prenomEnfant: string;
   nomEnfant: string;
   dateNaissance: string;
   lieuNaissance: string;
   sexe: string;
+  // Père
   nomPere: string;
   prenomPere: string;
+  professionPere: string;
+  nationalitePere: string;
+  residencePere: string;
+  // Mère
   nomMere: string;
   prenomMere: string;
+  professionMere: string;
+  nationaliteMere: string;
+  residenceMere: string;
 }
 
 const INITIAL: FormData = {
@@ -24,8 +33,14 @@ const INITIAL: FormData = {
   sexe: "M",
   nomPere: "",
   prenomPere: "",
+  professionPere: "",
+  nationalitePere: "",
+  residencePere: "",
   nomMere: "",
   prenomMere: "",
+  professionMere: "",
+  nationaliteMere: "",
+  residenceMere: "",
 };
 
 const fieldStyle = {
@@ -76,6 +91,13 @@ export default function DeclarationForm() {
         body: JSON.stringify({
           ...data,
           dateNaissance: new Date(data.dateNaissance).toISOString(),
+          // Champs optionnels — on envoie undefined si vide
+          professionPere: data.professionPere || undefined,
+          nationalitePere: data.nationalitePere || undefined,
+          residencePere: data.residencePere || undefined,
+          professionMere: data.professionMere || undefined,
+          nationaliteMere: data.nationaliteMere || undefined,
+          residenceMere: data.residenceMere || undefined,
         }),
       });
 
@@ -121,7 +143,7 @@ export default function DeclarationForm() {
       onSubmit={submit}
       style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}
     >
-      {/* Enfant */}
+      {/* ── Enfant ──────────────────────────────────────────────────────────── */}
       <section>
         {sectionTitle("Informations de l'enfant")}
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -173,53 +195,99 @@ export default function DeclarationForm() {
         </div>
       </section>
 
-      {/* Père */}
+      {/* ── Père ────────────────────────────────────────────────────────────── */}
       <section>
         {sectionTitle("Informations du père")}
-        <div style={fieldStyle}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div style={fieldStyle}>
+            <Input
+              label="Prénom du père"
+              value={data.prenomPere}
+              onChange={set("prenomPere")}
+              error={errors.prenomPere}
+              placeholder="Ex : Ibrahim"
+              required
+            />
+            <Input
+              label="Nom du père"
+              value={data.nomPere}
+              onChange={set("nomPere")}
+              error={errors.nomPere}
+              placeholder="Ex : Diallo"
+              required
+            />
+          </div>
           <Input
-            label="Prénom du père"
-            value={data.prenomPere}
-            onChange={set("prenomPere")}
-            error={errors.prenomPere}
-            placeholder="Ex : Ibrahim"
-            required
+            label="Profession du père"
+            value={data.professionPere}
+            onChange={set("professionPere")}
+            placeholder="Ex : Ingénieur "
           />
-          <Input
-            label="Nom du père"
-            value={data.nomPere}
-            onChange={set("nomPere")}
-            error={errors.nomPere}
-            placeholder="Ex : Diallo"
-            required
-          />
+          <div style={fieldStyle}>
+            <Input
+              label="Nationalité du père"
+              value={data.nationalitePere}
+              onChange={set("nationalitePere")}
+              placeholder="Ex : Ivoirienne "
+              required
+            />
+            <Input
+              label="Domicilié"
+              value={data.residencePere}
+              onChange={set("residencePere")}
+              placeholder="Ex : Abidjan, Cocody "
+            />
+          </div>
         </div>
       </section>
 
-      {/* Mère */}
+      {/* ── Mère ────────────────────────────────────────────────────────────── */}
       <section>
         {sectionTitle("Informations de la mère")}
-        <div style={fieldStyle}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div style={fieldStyle}>
+            <Input
+              label="Prénom de la mère"
+              value={data.prenomMere}
+              onChange={set("prenomMere")}
+              error={errors.prenomMere}
+              placeholder="Ex : Aminata"
+              required
+            />
+            <Input
+              label="Nom de naissance de la mère"
+              value={data.nomMere}
+              onChange={set("nomMere")}
+              error={errors.nomMere}
+              placeholder="Ex : Coulibaly"
+              required
+            />
+          </div>
           <Input
-            label="Prénom de la mère"
-            value={data.prenomMere}
-            onChange={set("prenomMere")}
-            error={errors.prenomMere}
-            placeholder="Ex : Aminata"
-            required
+            label="Profession de la mère"
+            value={data.professionMere}
+            onChange={set("professionMere")}
+            placeholder="Ex : Commerçante "
           />
-          <Input
-            label="Nom de naissance de la mère"
-            value={data.nomMere}
-            onChange={set("nomMere")}
-            error={errors.nomMere}
-            placeholder="Ex : Coulibaly"
-            required
-          />
+          <div style={fieldStyle}>
+            <Input
+              label="Nationalité "
+              value={data.nationaliteMere}
+              onChange={set("nationaliteMere")}
+              placeholder="Ex : Ivoirienne "
+              required
+            />
+            <Input
+              label="Domiciliée"
+              value={data.residenceMere}
+              onChange={set("residenceMere")}
+              placeholder="Ex : Abidjan, Yopougon "
+            />
+          </div>
         </div>
       </section>
 
-      {/* Erreur API */}
+      {/* ── Erreur API ──────────────────────────────────────────────────────── */}
       {apiError && (
         <div
           style={{
@@ -235,7 +303,7 @@ export default function DeclarationForm() {
         </div>
       )}
 
-      {/* Actions */}
+      {/* ── Actions ─────────────────────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
         <Button
           type="button"
