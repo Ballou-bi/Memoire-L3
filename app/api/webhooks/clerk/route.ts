@@ -12,7 +12,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // Next.js 15 — headers() est async
   const headersList = await headers();
   const svix_id = headersList.get("svix-id");
   const svix_timestamp = headersList.get("svix-timestamp");
