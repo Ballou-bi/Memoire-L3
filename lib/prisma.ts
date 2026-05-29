@@ -9,8 +9,17 @@ const globalForPrisma = globalThis as unknown as {
 function createClient() {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }, // obligatoire pour Neon
+    ssl: { rejectUnauthorized: false },
+    // Neon coupe les connexions inactives — ces options évitent le P1017
+    max: 1, // 1 seule connexion en dev (évite la saturation)
+    idleTimeoutMillis: 10000, // libère après 10s d'inactivité
+    connectionTimeoutMillis: 10000, // timeout si pas de connexion en 10s
   });
+
+  pool.on("error", (err) => {
+    console.error("Pool error — reconnexion automatique", err.message);
+  });
+
   const adapter = new PrismaPg(pool);
   return new PrismaClient({
     adapter,

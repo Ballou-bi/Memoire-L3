@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/dashboard/Header";
 import StatsCard from "@/components/dashboard/StatsCard";
+import QueueRow from "@/components/dashboard/QueueRow";
 import { EmptyState } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -44,171 +44,175 @@ export default async function OfficierDashboard() {
       />
 
       <div className="db-content animate-fade-up">
-        {/* Stats */}
+        {/* ── Stats 3 colonnes ── */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
             gap: "1rem",
-            marginBottom: "2.5rem",
+            marginBottom: "2rem",
           }}
+          className="stats-grid-3"
         >
           <StatsCard
             label="En attente"
             value={enAttente}
-            color="gold"
-            sub="À traiter"
+            color="orange"
+            featured={true}
+            sub="à traiter"
           />
-          <StatsCard label="Validées par moi" value={validees} color="green" />
-          <StatsCard label="Rejetées par moi" value={rejetees} color="red" />
+          <StatsCard
+            label="Validées par moi"
+            value={validees}
+            color="green"
+            sub="traitées"
+          />
+          <StatsCard
+            label="Rejetées par moi"
+            value={rejetees}
+            color="dark"
+            sub="refusées"
+          />
         </div>
 
-        {/* File d'attente */}
+        {/* ── File d'attente ── */}
         <section>
-          <h2
+          <div
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "1.25rem",
-              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
               marginBottom: "1rem",
             }}
           >
-            File d&lsquo;attente ({enAttente})
-          </h2>
+            <div>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "1.15rem",
+                  fontWeight: 600,
+                  color: "white",
+                  margin: 0,
+                }}
+              >
+                File d&apos;attente
+              </h2>
+              <p
+                style={{
+                  fontSize: "0.73rem",
+                  color: "rgba(255,255,255,0.3)",
+                  margin: "0.2rem 0 0",
+                }}
+              >
+                {enAttente} déclaration{enAttente > 1 ? "s" : ""} à traiter ·
+                par ordre d&apos;arrivée
+              </p>
+            </div>
+            {enAttente > 0 && (
+              <span
+                style={{
+                  background: "rgba(249,115,22,0.15)",
+                  color: "#f97316",
+                  border: "1px solid rgba(249,115,22,0.3)",
+                  fontSize: "0.72rem",
+                  fontWeight: 600,
+                  padding: "0.25rem 0.75rem",
+                  borderRadius: "20px",
+                }}
+              >
+                {enAttente} en attente
+              </span>
+            )}
+          </div>
 
           {recentes.length === 0 ? (
-            <EmptyState
-              title="Aucune déclaration en attente"
-              subtitle="Toutes les déclarations ont été traitées."
-            />
+            <div
+              style={{
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: "14px",
+                padding: "2rem",
+              }}
+            >
+              <EmptyState
+                title="Aucune déclaration en attente"
+                subtitle="Toutes les déclarations ont été traitées."
+              />
+            </div>
           ) : (
             <div
               style={{
-                border: "1px solid rgba(201,168,76,0.1)",
-                borderRadius: "4px",
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: "14px",
                 overflow: "hidden",
               }}
             >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr
+              {/* Header tableau */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "2fr 1.2fr 1.2fr 1.5fr 1fr 100px",
+                  padding: "0.75rem 1.5rem",
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  background: "rgba(255,255,255,0.02)",
+                }}
+                className="queue-header"
+              >
+                {[
+                  "Enfant",
+                  "Date de naissance",
+                  "Lieu",
+                  "Demandé par",
+                  "Soumis le",
+                  "Action",
+                ].map((h) => (
+                  <div
+                    key={h}
                     style={{
-                      borderBottom: "1px solid rgba(201,168,76,0.1)",
-                      background: "rgba(255,255,255,0.02)",
+                      fontSize: "0.6rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.12em",
+                      color: "rgba(255,255,255,0.28)",
+                      fontWeight: 600,
                     }}
                   >
-                    {[
-                      "Enfant",
-                      "Date de naissance",
-                      "Lieu",
-                      "Demandé par",
-                      "Soumis le",
-                      "Action",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        style={{
-                          padding: "0.75rem 1rem",
-                          textAlign: "left",
-                          fontSize: "0.62rem",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.1em",
-                          color: "var(--gold)",
-                          opacity: 0.7,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentes.map((d, i) => (
-                    <tr
-                      key={d.id}
-                      style={{
-                        borderBottom:
-                          i < recentes.length - 1
-                            ? "1px solid rgba(201,168,76,0.06)"
-                            : "none",
-                      }}
-                    >
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontWeight: 500,
-                          fontSize: "0.88rem",
-                        }}
-                      >
-                        {d.prenomEnfant} {d.nomEnfant}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.82rem",
-                          opacity: 0.65,
-                        }}
-                      >
-                        {formatDate(d.dateNaissance)}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.82rem",
-                          opacity: 0.65,
-                        }}
-                      >
-                        {d.lieuNaissance}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.82rem",
-                          opacity: 0.65,
-                        }}
-                      >
-                        {d.citoyen.prenom} {d.citoyen.nom}
-                      </td>
-                      <td
-                        style={{
-                          padding: "0.875rem 1rem",
-                          fontSize: "0.78rem",
-                          opacity: 0.5,
-                        }}
-                      >
-                        {formatDate(d.createdAt)}
-                      </td>
-                      <td style={{ padding: "0.875rem 1rem" }}>
-                        <Link
-                          href={`/officier/declaration/${d.id}`}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.4rem",
-                            background: "rgba(201,168,76,0.1)",
-                            border: "1px solid rgba(201,168,76,0.25)",
-                            color: "var(--gold)",
-                            padding: "0.35rem 0.875rem",
-                            borderRadius: "2px",
-                            textDecoration: "none",
-                            fontSize: "0.72rem",
-                            fontWeight: 500,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          Traiter →
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    {h}
+                  </div>
+                ))}
+              </div>
+
+              {/* Lignes — composant client pour le hover */}
+              {recentes.map((d, i) => (
+                <QueueRow
+                  key={d.id}
+                  id={d.id}
+                  prenomEnfant={d.prenomEnfant}
+                  nomEnfant={d.nomEnfant}
+                  dateNaissance={formatDate(d.dateNaissance)}
+                  lieuNaissance={d.lieuNaissance}
+                  citoyenPrenom={d.citoyen.prenom}
+                  citoyenNom={d.citoyen.nom}
+                  createdAt={formatDate(d.createdAt)}
+                  isLast={i === recentes.length - 1}
+                />
+              ))}
             </div>
           )}
         </section>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .stats-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+          .queue-header { display: none !important; }
+          .queue-row {
+            grid-template-columns: 1fr !important;
+            gap: 0.5rem;
+            padding: 1rem !important;
+          }
+        }
+      `}</style>
     </>
   );
 }

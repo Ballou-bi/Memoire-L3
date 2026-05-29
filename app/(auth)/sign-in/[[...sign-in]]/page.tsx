@@ -10,7 +10,7 @@ export default function SignInPage() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--navy)",
+        background: "var(--ci-bg)",
         padding: "2rem",
       }}
     >
@@ -20,7 +20,7 @@ export default function SignInPage() {
           fontFamily: "'Cormorant Garamond', serif",
           fontSize: "1.5rem",
           fontWeight: 700,
-          color: "var(--gold)",
+          color: "var(--ci-orange)",
           textDecoration: "none",
           marginBottom: "2rem",
           letterSpacing: "0.05em",

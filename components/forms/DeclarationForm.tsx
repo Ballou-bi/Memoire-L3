@@ -129,7 +129,7 @@ export default function DeclarationForm() {
           fontSize: "0.65rem",
           textTransform: "uppercase",
           letterSpacing: "0.2em",
-          color: "var(--gold)",
+          color: "var(--ci-orange)",
           opacity: 0.8,
         }}
       >

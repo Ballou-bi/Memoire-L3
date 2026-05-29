@@ -25,7 +25,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
   if (user.role !== "ADMIN") redirect(`/${user.role.toLowerCase()}`);
 
   const page = parseInt(pageStr ?? "1");
-  const limit = 20;
+  const limit = 10;
   const skip = (page - 1) * limit;
 
   const where: Record<string, unknown> = {};
@@ -102,7 +102,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                 textDecoration: "none",
                 background:
                   filterRole === r || (!filterRole && r === "")
-                    ? "var(--gold)"
+                    ? "var(--bg-card)"
                     : "rgba(255,255,255,0.04)",
                 color:
                   filterRole === r || (!filterRole && r === "")
@@ -149,7 +149,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       fontSize: "0.62rem",
                       textTransform: "uppercase",
                       letterSpacing: "0.1em",
-                      color: "var(--gold)",
+                      color: "var(--bg-card)",
                       opacity: 0.7,
                       fontWeight: 500,
                       whiteSpace: "nowrap",
@@ -177,6 +177,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       fontWeight: 500,
                       fontSize: "0.88rem",
                       whiteSpace: "nowrap",
+                      color: "var(--bg-card)",
                     }}
                   >
                     {u.prenom} {u.nom}
@@ -284,7 +285,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   fontSize: "0.8rem",
                   textDecoration: "none",
                   background:
-                    p === page ? "var(--gold)" : "rgba(255,255,255,0.04)",
+                    p === page ? "var(-ci-orange)" : "rgba(255,255,255,0.04)",
                   color: p === page ? "var(--navy)" : "var(--cream)",
                   border: "1px solid rgba(201,168,76,0.2)",
                 }}

@@ -37,16 +37,25 @@ export default function AdminQuickCard({
             fontSize: "0.92rem",
             fontWeight: 500,
             marginBottom: "0.4rem",
+            color: "var( --bg-card)",
           }}
         >
           {label}
         </div>
-        <div style={{ fontSize: "0.78rem", opacity: 0.45 }}>{desc}</div>
+        <div
+          style={{
+            fontSize: "0.78rem",
+            color: "var( --bg-card)",
+            opacity: 0.45,
+          }}
+        >
+          {desc}
+        </div>
         <div
           style={{
             marginTop: "0.75rem",
             fontSize: "0.8rem",
-            color: "var(--gold)",
+            color: "var(--ci-orange)",
             opacity: 0.7,
           }}
         >

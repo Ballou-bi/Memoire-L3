@@ -25,7 +25,7 @@ export default async function AdminExtraitsPage({ searchParams }: Props) {
   if (user.role !== "ADMIN") redirect(`/${user.role.toLowerCase()}`);
 
   const page = parseInt(pageStr ?? "1");
-  const limit = 20;
+  const limit = 10;
   const skip = (page - 1) * limit;
 
   const [extraits, total] = await Promise.all([
@@ -94,7 +94,7 @@ export default async function AdminExtraitsPage({ searchParams }: Props) {
                           fontSize: "0.62rem",
                           textTransform: "uppercase",
                           letterSpacing: "0.1em",
-                          color: "var(--gold)",
+                          color: "var(--bg-card)",
                           opacity: 0.7,
                           fontWeight: 500,
                         }}
@@ -128,6 +128,7 @@ export default async function AdminExtraitsPage({ searchParams }: Props) {
                             fontSize: "0.72rem",
                             opacity: 0.45,
                             marginTop: "0.15rem",
+                            color: "var(--bg-card)",
                           }}
                         >
                           Né(e) le {formatDate(e.declaration.dateNaissance)}
@@ -137,14 +138,14 @@ export default async function AdminExtraitsPage({ searchParams }: Props) {
                         style={{
                           padding: "0.875rem 1rem",
                           fontSize: "0.78rem",
-                          color: "var(--gold)",
+                          color: "var(--bg-card)",
                           opacity: 0.8,
                         }}
                       >
                         {e.declaration.acte?.numero ?? "—"}
                       </td>
                       <td style={{ padding: "0.875rem 1rem" }}>
-                        <Badge color="gold">
+                        <Badge color="orange">
                           {TYPE_EXTRAIT_LABELS[e.type] ?? e.type}
                         </Badge>
                       </td>
@@ -156,7 +157,13 @@ export default async function AdminExtraitsPage({ searchParams }: Props) {
                         }}
                       >
                         {e.user.prenom} {e.user.nom}
-                        <div style={{ fontSize: "0.72rem", opacity: 0.6 }}>
+                        <div
+                          style={{
+                            fontSize: "0.72rem",
+                            opacity: 0.6,
+                            color: "var(--bg-card)",
+                          }}
+                        >
                           {e.user.email}
                         </div>
                       </td>
@@ -177,7 +184,7 @@ export default async function AdminExtraitsPage({ searchParams }: Props) {
                           rel="noreferrer"
                           style={{
                             fontSize: "0.72rem",
-                            color: "var(--gold)",
+                            color: "var(--bg-card)",
                             textDecoration: "none",
                             opacity: 0.8,
                           }}
@@ -217,7 +224,9 @@ export default async function AdminExtraitsPage({ searchParams }: Props) {
                       fontSize: "0.8rem",
                       textDecoration: "none",
                       background:
-                        p === page ? "var(--gold)" : "rgba(255,255,255,0.04)",
+                        p === page
+                          ? "var(-ci-orange)"
+                          : "rgba(255,255,255,0.04)",
                       color: p === page ? "var(--navy)" : "var(--cream)",
                       border: "1px solid rgba(201,168,76,0.2)",
                     }}

@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/dashboard/Header";
-import { Button, EmptyState } from "@/components/ui";
-import DeclarationCard from "./DeclarationCard";
+import DeclarationCard from "@/components/dashboard/DeclarationCard";
+import { StatusBadge, Button, EmptyState } from "@/components/ui";
+import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Mes déclarations" };
@@ -18,10 +19,7 @@ export default async function CitoyenDeclarationsPage() {
 
   const declarations = await prisma.declaration.findMany({
     where: { citoyenId: user.id },
-    include: {
-      acte: true,
-      _count: { select: { extraits: true } },
-    },
+    include: { acte: true, _count: { select: { extraits: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -50,7 +48,7 @@ export default async function CitoyenDeclarationsPage() {
           />
         ) : (
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+            style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
           >
             {declarations.map((d) => (
               <DeclarationCard
@@ -58,11 +56,12 @@ export default async function CitoyenDeclarationsPage() {
                 id={d.id}
                 prenomEnfant={d.prenomEnfant}
                 nomEnfant={d.nomEnfant}
-                dateNaissance={d.dateNaissance}
+                dateNaissance={formatDate(d.dateNaissance)}
                 lieuNaissance={d.lieuNaissance}
                 statut={d.statut}
-                acteNumero={d.acte?.numero}
-                nbExtraits={d._count.extraits}
+                acteNumero={d.acte?.numero ?? null}
+                extraitsCount={d._count.extraits}
+                statusBadge={<StatusBadge statut={d.statut} />}
               />
             ))}
           </div>

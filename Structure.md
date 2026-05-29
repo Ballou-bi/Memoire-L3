@@ -285,3 +285,15 @@ types/index.ts
 prisma/schema.prisma
 prisma/seed.ts
 ```
+
+:root {
+--navy: #0a1628;
+--gold: #c9a84c;
+--gold-light: #e8d5a3;
+--cream: #f8f4ed;
+--accent: #1a3a5c;
+--success: #22c55e;
+--warning: #f59e0b;
+--danger: #ef4444;
+--sidebar-width: 260px;
+}

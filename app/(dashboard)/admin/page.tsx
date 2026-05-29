@@ -81,7 +81,7 @@ export default async function AdminDashboard() {
     <>
       <Header
         title="Administration"
-        subtitle="Vue globale de la plateforme RegistreNatal"
+        subtitle="Vue globale de la plateforme waya"
       />
 
       <div className="db-content animate-fade-up">
@@ -96,12 +96,12 @@ export default async function AdminDashboard() {
           <StatsCard
             label="Total déclarations"
             value={totalDeclarations}
-            color="gold"
+            color="orange"
           />
           <StatsCard
             label="En attente"
             value={enAttente}
-            color="blue"
+            color="white"
             sub="À traiter"
           />
           <StatsCard
@@ -110,7 +110,7 @@ export default async function AdminDashboard() {
             color="green"
             sub={`${totalDeclarations > 0 ? Math.round((validees / totalDeclarations) * 100) : 0}%`}
           />
-          <StatsCard label="Rejetées" value={rejetees} color="red" />
+          <StatsCard label="Rejetées" value={rejetees} color="dark" />
         </div>
 
         <div
@@ -124,17 +124,17 @@ export default async function AdminDashboard() {
           <StatsCard
             label="Extraits délivrés"
             value={totalExtraits}
-            color="gold"
+            color="green"
           />
           <StatsCard
             label="Citoyens inscrits"
             value={totalCitoyens}
-            color="blue"
+            color="orange"
           />
           <StatsCard
             label="Officiers actifs"
             value={totalOfficiers}
-            color="gold"
+            color="white"
           />
         </div>
 
@@ -172,6 +172,7 @@ export default async function AdminDashboard() {
                   fontFamily: "'Cormorant Garamond', serif",
                   fontSize: "1.15rem",
                   fontWeight: 600,
+                  color: "var(--bg-card)",
                 }}
               >
                 Déclarations récentes
@@ -180,7 +181,7 @@ export default async function AdminDashboard() {
                 href="/admin/declarations"
                 style={{
                   fontSize: "0.75rem",
-                  color: "var(--gold)",
+                  color: "var(--bg-card)",
                   textDecoration: "none",
                   opacity: 0.8,
                 }}
@@ -219,6 +220,7 @@ export default async function AdminDashboard() {
                         fontSize: "0.72rem",
                         opacity: 0.45,
                         marginTop: "0.15rem",
+                        color: "var(--bg-card)",
                       }}
                     >
                       par {d.citoyen.prenom} {d.citoyen.nom} ·{" "}
@@ -238,6 +240,7 @@ export default async function AdminDashboard() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 marginBottom: "1rem",
+                // color: "var(--bg-card)",
               }}
             >
               <h2
@@ -245,6 +248,7 @@ export default async function AdminDashboard() {
                   fontFamily: "'Cormorant Garamond', serif",
                   fontSize: "1.15rem",
                   fontWeight: 600,
+                  color: "var(--bg-card)",
                 }}
               >
                 Nouveaux utilisateurs
@@ -253,7 +257,7 @@ export default async function AdminDashboard() {
                 href="/admin/users"
                 style={{
                   fontSize: "0.75rem",
-                  color: "var(--gold)",
+                  color: "var(--bg-card)",
                   textDecoration: "none",
                   opacity: 0.8,
                 }}
@@ -294,6 +298,7 @@ export default async function AdminDashboard() {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
+                        color: "var(--bg-card)",
                       }}
                     >
                       {u.email}

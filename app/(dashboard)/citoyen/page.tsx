@@ -4,6 +4,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/dashboard/Header";
 import StatsCard from "@/components/dashboard/StatsCard";
+import DeclarationRow from "@/components/dashboard/DeclarationRow";
 import { StatusBadge, Button, EmptyState } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -56,323 +57,365 @@ export default async function CitoyenDashboard() {
       />
 
       <div className="db-content animate-fade-up">
-        {/* ── Stats ── responsive 2 colonnes sur mobile, 4 sur desktop */}
+        {/* ── Stats 4 colonnes ── */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "0.75rem",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "1rem",
             marginBottom: "2rem",
           }}
           className="stats-grid"
         >
-          <StatsCard label="Déclarations" value={total} color="gold" />
-          <StatsCard label="Validées" value={validees} color="green" />
-          <StatsCard label="En attente" value={enAttente} color="blue" />
-          <StatsCard label="Extraits" value={totalExtraits} color="gold" />
+          <StatsCard
+            label="Total Déclarations"
+            value={total}
+            color="green"
+            featured={true}
+            sub="ce mois"
+          />
+          <StatsCard
+            label="Validées"
+            value={validees}
+            color="green"
+            sub="enregistrées"
+          />
+          <StatsCard
+            label="En attente"
+            value={enAttente}
+            color="orange"
+            sub="en traitement"
+          />
+          <StatsCard
+            label="Mes extraits"
+            value={totalExtraits}
+            color="orange"
+            sub="disponibles"
+          />
         </div>
 
-        {/* ── Déclarations récentes ── */}
-        <section style={{ marginBottom: "2rem" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "1rem",
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "1.2rem",
-                fontWeight: 600,
-              }}
-            >
-              Déclarations récentes
-            </h2>
-            <Link
-              href="/citoyen/declaration"
-              style={{
-                fontSize: "0.78rem",
-                color: "var(--gold)",
-                textDecoration: "none",
-                opacity: 0.8,
-                whiteSpace: "nowrap",
-              }}
-            >
-              Voir tout →
-            </Link>
-          </div>
-
-          {user.declarations.length === 0 ? (
-            <EmptyState
-              title="Aucune déclaration"
-              subtitle="Commencez par déclarer une naissance en ligne."
-              action={
-                <Link href="/citoyen/declaration/new">
-                  <Button size="sm">Faire une déclaration</Button>
-                </Link>
-              }
-            />
-          ) : (
-            <>
-              {/* ── Version mobile — cards ── */}
-              <div
-                className="declarations-mobile"
-                style={{
-                  display: "none",
-                  flexDirection: "column",
-                  gap: "0.75rem",
-                }}
-              >
-                {user.declarations.map((d) => (
-                  <Link
-                    key={d.id}
-                    href={`/citoyen/declaration/${d.id}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <div
-                      style={{
-                        background: "rgba(255,255,255,0.02)",
-                        border: "1px solid rgba(201,168,76,0.1)",
-                        borderRadius: "4px",
-                        padding: "1rem",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          marginBottom: "0.5rem",
-                        }}
-                      >
-                        <div style={{ fontWeight: 500, fontSize: "0.9rem" }}>
-                          {d.prenomEnfant} {d.nomEnfant}
-                        </div>
-                        <StatusBadge statut={d.statut} />
-                      </div>
-                      <div style={{ fontSize: "0.75rem", opacity: 0.5 }}>
-                        {formatDate(d.dateNaissance)} · {d.lieuNaissance}
-                      </div>
-                      {d.acte && (
-                        <div
-                          style={{
-                            fontSize: "0.72rem",
-                            color: "var(--gold)",
-                            opacity: 0.7,
-                            marginTop: "0.3rem",
-                          }}
-                        >
-                          N° {d.acte.numero}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              {/* ── Version desktop — tableau ── */}
-              <div
-                className="declarations-desktop"
-                style={{
-                  border: "1px solid rgba(201,168,76,0.1)",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                }}
-              >
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr
-                      style={{
-                        borderBottom: "1px solid rgba(201,168,76,0.1)",
-                        background: "rgba(255,255,255,0.02)",
-                      }}
-                    >
-                      {[
-                        "Enfant",
-                        "Date de naissance",
-                        "Lieu",
-                        "Statut",
-                        "N° Acte",
-                        "Actions",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "0.75rem 1rem",
-                            textAlign: "left",
-                            fontSize: "0.65rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em",
-                            color: "var(--gold)",
-                            opacity: 0.7,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {user.declarations.map((d, i) => (
-                      <tr
-                        key={d.id}
-                        style={{
-                          borderBottom:
-                            i < user.declarations.length - 1
-                              ? "1px solid rgba(201,168,76,0.06)"
-                              : "none",
-                        }}
-                      >
-                        <td
-                          style={{
-                            padding: "0.875rem 1rem",
-                            fontSize: "0.85rem",
-                            fontWeight: 500,
-                          }}
-                        >
-                          {d.prenomEnfant} {d.nomEnfant}
-                        </td>
-                        <td
-                          style={{
-                            padding: "0.875rem 1rem",
-                            fontSize: "0.82rem",
-                            opacity: 0.65,
-                          }}
-                        >
-                          {formatDate(d.dateNaissance)}
-                        </td>
-                        <td
-                          style={{
-                            padding: "0.875rem 1rem",
-                            fontSize: "0.82rem",
-                            opacity: 0.65,
-                          }}
-                        >
-                          {d.lieuNaissance}
-                        </td>
-                        <td style={{ padding: "0.875rem 1rem" }}>
-                          <StatusBadge statut={d.statut} />
-                        </td>
-                        <td
-                          style={{
-                            padding: "0.875rem 1rem",
-                            fontSize: "0.78rem",
-                            color: "var(--gold)",
-                            opacity: 0.7,
-                          }}
-                        >
-                          {d.acte?.numero ?? "—"}
-                        </td>
-                        <td style={{ padding: "0.875rem 1rem" }}>
-                          <Link
-                            href={`/citoyen/declaration/${d.id}`}
-                            style={{
-                              fontSize: "0.75rem",
-                              color: "var(--gold)",
-                              textDecoration: "none",
-                            }}
-                          >
-                            Voir →
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-        </section>
-
-        {/* ── Extraits récents ── */}
-        {user.extraits.length > 0 && (
+        {/* ── Grille 2 colonnes ── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 300px",
+            gap: "1.25rem",
+            alignItems: "start",
+          }}
+          className="dashboard-grid"
+        >
+          {/* ── Déclarations récentes ── */}
           <section>
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "1rem",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "14px",
+                overflow: "hidden",
               }}
             >
-              <h2
+              {/* Header */}
+              <div
                 style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "1.2rem",
-                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "1.25rem 1.5rem",
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
                 }}
               >
-                Derniers extraits
-              </h2>
-              <Link
-                href="/citoyen/extraits"
-                style={{
-                  fontSize: "0.78rem",
-                  color: "var(--gold)",
-                  textDecoration: "none",
-                  opacity: 0.8,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Voir tout →
-              </Link>
+                <div>
+                  <h2
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: "1.1rem",
+                      fontWeight: 600,
+                      color: "white",
+                      margin: 0,
+                    }}
+                  >
+                    Déclarations récentes
+                  </h2>
+                  <p
+                    style={{
+                      fontSize: "0.73rem",
+                      color: "rgba(255,255,255,0.3)",
+                      margin: "0.2rem 0 0",
+                    }}
+                  >
+                    Vos 5 dernières déclarations
+                  </p>
+                </div>
+                <Link
+                  href="/citoyen/declaration"
+                  style={{
+                    fontSize: "0.78rem",
+                    color: "#f97316",
+                    textDecoration: "none",
+                    opacity: 0.85,
+                  }}
+                >
+                  Voir tout →
+                </Link>
+              </div>
+
+              {user.declarations.length === 0 ? (
+                <div style={{ padding: "2rem" }}>
+                  <EmptyState
+                    title="Aucune déclaration"
+                    subtitle="Commencez par déclarer une naissance en ligne."
+                    action={
+                      <Link href="/citoyen/declaration/new">
+                        <Button size="sm">Faire une déclaration</Button>
+                      </Link>
+                    }
+                  />
+                </div>
+              ) : (
+                <>
+                  {/* Mobile cards */}
+                  <div
+                    className="declarations-mobile"
+                    style={{
+                      display: "none",
+                      flexDirection: "column",
+                      gap: "0.75rem",
+                      padding: "1rem",
+                    }}
+                  >
+                    {user.declarations.map((d) => (
+                      <Link
+                        key={d.id}
+                        href={`/citoyen/declaration/${d.id}`}
+                        style={{ textDecoration: "none" }}
+                      >
+                        <div
+                          style={{
+                            background: "rgba(255,255,255,0.03)",
+                            border: "1px solid rgba(255,255,255,0.07)",
+                            borderRadius: "10px",
+                            padding: "1rem",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              marginBottom: "0.5rem",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontWeight: 500,
+                                fontSize: "0.9rem",
+                                color: "white",
+                              }}
+                            >
+                              {d.prenomEnfant} {d.nomEnfant}
+                            </div>
+                            <StatusBadge statut={d.statut} />
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              color: "rgba(255,255,255,0.4)",
+                            }}
+                          >
+                            {formatDate(d.dateNaissance)} · {d.lieuNaissance}
+                          </div>
+                          {d.acte && (
+                            <div
+                              style={{
+                                fontSize: "0.72rem",
+                                color: "#f97316",
+                                opacity: 0.7,
+                                marginTop: "0.3rem",
+                              }}
+                            >
+                              N° {d.acte.numero}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Desktop — composant client pour le hover */}
+                  <div className="declarations-desktop">
+                    {user.declarations.map((d, i) => (
+                      <DeclarationRow
+                        key={d.id}
+                        id={d.id}
+                        prenomEnfant={d.prenomEnfant}
+                        nomEnfant={d.nomEnfant}
+                        dateNaissance={formatDate(d.dateNaissance)}
+                        lieuNaissance={d.lieuNaissance}
+                        acteNumero={d.acte?.numero ?? null}
+                        statut={<StatusBadge statut={d.statut} />}
+                        isLast={i === user.declarations.length - 1}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
+          </section>
+
+          {/* ── Colonne droite ── */}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
+          >
+            {/* Extraits récents */}
+            {user.extraits.length > 0 && (
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "14px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "1rem 1.25rem",
+                    borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: "1rem",
+                      fontWeight: 600,
+                      color: "white",
+                      margin: 0,
+                    }}
+                  >
+                    Derniers extraits
+                  </h3>
+                  <Link
+                    href="/citoyen/extraits"
+                    style={{
+                      fontSize: "0.75rem",
+                      color: "#f97316",
+                      textDecoration: "none",
+                      opacity: 0.8,
+                    }}
+                  >
+                    Voir tout →
+                  </Link>
+                </div>
+                {user.extraits.map((e, i) => (
+                  <div
+                    key={e.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "0.875rem 1.25rem",
+                      borderBottom:
+                        i < user.extraits.length - 1
+                          ? "1px solid rgba(255,255,255,0.05)"
+                          : "none",
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "0.78rem",
+                          fontWeight: 500,
+                          color: "white",
+                          marginBottom: "0.18rem",
+                        }}
+                      >
+                        {e.type.replace(/_/g, " ")}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.7rem",
+                          color: "rgba(255,255,255,0.35)",
+                        }}
+                      >
+                        {formatDate(e.createdAt)}
+                      </div>
+                    </div>
+                    <a
+                      href={`/api/extraits/${e.id}/pdf`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        fontSize: "0.72rem",
+                        color: "#22c55e",
+                        textDecoration: "none",
+                        opacity: 0.85,
+                      }}
+                    >
+                      ↓ PDF
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Statut compte */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                background: "rgba(34,197,94,0.05)",
+                border: "1px solid rgba(34,197,94,0.15)",
+                borderRadius: "14px",
+                padding: "1rem 1.25rem",
+                display: "flex",
+                alignItems: "center",
                 gap: "0.75rem",
               }}
             >
-              {user.extraits.map((e) => (
+              <div
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  background: "#22c55e",
+                  boxShadow: "0 0 8px #22c55e",
+                  flexShrink: 0,
+                }}
+              />
+              <div>
                 <div
-                  key={e.id}
                   style={{
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(201,168,76,0.1)",
-                    borderRadius: "4px",
-                    padding: "1rem",
+                    fontSize: "0.78rem",
+                    fontWeight: 500,
+                    color: "white",
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: "0.7rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.1em",
-                      color: "var(--gold)",
-                      opacity: 0.7,
-                      marginBottom: "0.4rem",
-                    }}
-                  >
-                    {e.type.replace(/_/g, " ")}
-                  </div>
-                  <div style={{ fontSize: "0.78rem", opacity: 0.5 }}>
-                    {formatDate(e.createdAt)}
-                  </div>
-                  <a
-                    href={`/api/extraits/${e.id}/pdf`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      display: "inline-block",
-                      marginTop: "0.75rem",
-                      fontSize: "0.75rem",
-                      color: "var(--gold)",
-                      textDecoration: "none",
-                    }}
-                  >
-                    ↓ Télécharger
-                  </a>
+                  Compte vérifié
                 </div>
-              ))}
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    color: "rgba(255,255,255,0.35)",
+                  }}
+                >
+                  {user.prenom} {user.nom}
+                </div>
+              </div>
             </div>
-          </section>
-        )}
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .dashboard-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 640px) {
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .declarations-desktop { display: none !important; }
+          .declarations-mobile { display: flex !important; }
+        }
+      `}</style>
     </>
   );
 }

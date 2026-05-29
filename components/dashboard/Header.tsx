@@ -9,28 +9,26 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
     <header
       style={{
         padding: "1.25rem 2rem",
-        borderBottom: "1px solid rgba(201,168,76,0.1)",
+        borderBottom: "1px solid var(--border)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        background: "rgba(10,22,40,0.6)",
-        backdropFilter: "blur(8px)",
+        background: "var(--bg-card)",
         position: "sticky",
         top: 0,
         zIndex: 10,
+        boxShadow: "var(--shadow-sm)",
       }}
     >
       <div style={{ minWidth: 0 }}>
         <h1
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: "clamp(1.2rem, 4vw, 1.6rem)",
-            fontWeight: 600,
-            color: "var(--cream)",
+            fontFamily: "'Fraunces', serif",
+            fontSize: "clamp(1.3rem, 3vw, 1.8rem)",
+            fontWeight: 700,
+            color: "var(--text-primary)",
             lineHeight: 1.1,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            letterSpacing: "-0.02em",
           }}
         >
           {title}
@@ -38,9 +36,8 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
         {subtitle && (
           <p
             style={{
-              fontSize: "0.78rem",
-              color: "var(--cream)",
-              opacity: 0.5,
+              fontSize: "0.82rem",
+              color: "var(--text-muted)",
               marginTop: "0.2rem",
               overflow: "hidden",
               textOverflow: "ellipsis",

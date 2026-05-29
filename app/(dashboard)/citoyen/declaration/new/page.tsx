@@ -37,11 +37,12 @@ export default async function NewDeclarationPage() {
             fontSize: "0.82rem",
             lineHeight: 1.7,
             opacity: 0.85,
+            color: "white",
           }}
         >
           <strong
             style={{
-              color: "var(--gold)",
+              color: "var( --ci-orange)",
               display: "block",
               marginBottom: "0.3rem",
             }}

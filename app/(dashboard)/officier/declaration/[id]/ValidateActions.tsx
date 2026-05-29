@@ -61,7 +61,7 @@ export default function ValidateActions({
             fontSize: "0.65rem",
             textTransform: "uppercase",
             letterSpacing: "0.2em",
-            color: "var(--gold)",
+            color: "var(--ci-orange)",
             opacity: 0.7,
             marginBottom: "1rem",
             paddingBottom: "0.75rem",
@@ -70,7 +70,14 @@ export default function ValidateActions({
         >
           Décision rendue
         </div>
-        <div style={{ fontSize: "0.82rem", opacity: 0.6, lineHeight: 1.7 }}>
+        <div
+          style={{
+            fontSize: "0.82rem",
+            opacity: 0.6,
+            lineHeight: 1.7,
+            color: "var(--bg-card)",
+          }}
+        >
           {statut === "VALIDEE"
             ? "Cette déclaration a été validée. L'acte de naissance a été créé."
             : `Cette déclaration a été rejetée.${motifRejet ? ` Motif : ${motifRejet}` : ""}`}
@@ -95,7 +102,7 @@ export default function ValidateActions({
           fontSize: "0.65rem",
           textTransform: "uppercase",
           letterSpacing: "0.2em",
-          color: "var(--gold)",
+          color: "var(--ci-orange)",
           opacity: 0.7,
           marginBottom: "1.25rem",
           paddingBottom: "0.75rem",
@@ -115,6 +122,7 @@ export default function ValidateActions({
               opacity: 0.6,
               marginBottom: "0.5rem",
               lineHeight: 1.6,
+              color: "var(--bg-card)",
             }}
           >
             Après examen du dossier, choisissez une décision :

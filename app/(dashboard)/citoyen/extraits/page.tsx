@@ -72,12 +72,12 @@ export default async function CitoyenExtraitsPage() {
                     right: 0,
                     height: "2px",
                     background:
-                      "linear-gradient(90deg, var(--gold), transparent)",
+                      "linear-gradient(90deg, var(--bg-card), transparent)",
                   }}
                 />
 
                 {/* Type */}
-                <Badge color="gold">
+                <Badge color="orange">
                   {TYPE_EXTRAIT_LABELS[e.type] ?? e.type}
                 </Badge>
 
@@ -88,6 +88,7 @@ export default async function CitoyenExtraitsPage() {
                     marginBottom: "0.25rem",
                     fontWeight: 500,
                     fontSize: "0.95rem",
+                    color: "var(--bg-card)",
                   }}
                 >
                   {e.declaration.prenomEnfant} {e.declaration.nomEnfant}
@@ -97,6 +98,7 @@ export default async function CitoyenExtraitsPage() {
                     fontSize: "0.78rem",
                     opacity: 0.5,
                     marginBottom: "0.5rem",
+                    color: "var(--warning)",
                   }}
                 >
                   Né(e) le {formatDate(e.declaration.dateNaissance)}
@@ -107,7 +109,7 @@ export default async function CitoyenExtraitsPage() {
                   <div
                     style={{
                       fontSize: "0.72rem",
-                      color: "var(--gold)",
+                      color: "var(--bg-card)",
                       opacity: 0.7,
                       marginBottom: "1rem",
                     }}
@@ -122,6 +124,7 @@ export default async function CitoyenExtraitsPage() {
                     fontSize: "0.72rem",
                     opacity: 0.35,
                     marginBottom: "1.25rem",
+                    color: "var(--warning)",
                   }}
                 >
                   Demandé le {formatDate(e.createdAt)}
@@ -136,10 +139,10 @@ export default async function CitoyenExtraitsPage() {
                     display: "flex",
                     alignItems: "center",
                     gap: "0.5rem",
-                    background: "var(--gold)",
-                    color: "var(--navy)",
+                    background: "var(--ci-orange)",
+                    color: "var(--bg-card)",
                     padding: "0.55rem 1rem",
-                    borderRadius: "2px",
+                    borderRadius: "var(--radius-sm)",
                     textDecoration: "none",
                     fontSize: "0.75rem",
                     fontWeight: 500,

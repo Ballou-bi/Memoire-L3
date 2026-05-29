@@ -1,18 +1,18 @@
+// components/dashboard/DeclarationCard.tsx
 "use client";
 
 import Link from "next/link";
-import { StatusBadge } from "@/components/ui";
-import { formatDate } from "@/lib/utils";
 
 interface DeclarationCardProps {
   id: string;
   prenomEnfant: string;
   nomEnfant: string;
-  dateNaissance: Date;
+  dateNaissance: string;
   lieuNaissance: string;
-  statut: "EN_ATTENTE" | "VALIDEE" | "REJETEE";
+  statut: "VALIDEE" | "REJETEE" | "EN_ATTENTE";
   acteNumero?: string | null;
-  nbExtraits: number;
+  extraitsCount: number;
+  statusBadge: React.ReactNode;
 }
 
 export default function DeclarationCard({
@@ -23,8 +23,18 @@ export default function DeclarationCard({
   lieuNaissance,
   statut,
   acteNumero,
-  nbExtraits,
+  extraitsCount,
+  statusBadge,
 }: DeclarationCardProps) {
+  const iconColor =
+    statut === "VALIDEE"
+      ? "#009a44"
+      : statut === "REJETEE"
+        ? "#ef4444"
+        : "#f77f00";
+
+  const icon = statut === "VALIDEE" ? "✓" : statut === "REJETEE" ? "✗" : "○";
+
   return (
     <Link
       href={`/citoyen/declaration/${id}`}
@@ -32,54 +42,63 @@ export default function DeclarationCard({
     >
       <div
         style={{
-          background: "rgba(255,255,255,0.02)",
-          border: "1px solid rgba(201,168,76,0.1)",
-          borderRadius: "4px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: "14px",
           padding: "1.25rem 1.5rem",
           display: "flex",
           alignItems: "center",
           gap: "1.5rem",
-          transition: "border-color 0.15s",
+          transition: "border-color 0.15s, background 0.15s",
           cursor: "pointer",
         }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.borderColor = "rgba(201,168,76,0.3)")
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.borderColor = "rgba(201,168,76,0.1)")
-        }
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLDivElement).style.borderColor =
+            "rgba(247,127,0,0.35)";
+          (e.currentTarget as HTMLDivElement).style.background =
+            "rgba(255,255,255,0.05)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLDivElement).style.borderColor =
+            "rgba(255,255,255,0.08)";
+          (e.currentTarget as HTMLDivElement).style.background =
+            "rgba(255,255,255,0.03)";
+        }}
       >
-        {/* Icone statut */}
+        {/* Icône statut */}
         <div
           style={{
             width: "44px",
             height: "44px",
             flexShrink: 0,
-            border: "1px solid rgba(201,168,76,0.2)",
+            border: `1.5px solid ${iconColor}40`,
             borderRadius: "50%",
+            background: `${iconColor}12`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "var( --ci-orange)",
+            color: iconColor,
             fontSize: "1.1rem",
+            fontWeight: 600,
           }}
         >
-          {statut === "VALIDEE" ? "✓" : statut === "REJETEE" ? "✗" : "○"}
+          {icon}
         </div>
 
-        {/* Infos */}
+        {/* Infos enfant */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
               fontWeight: 500,
               fontSize: "0.95rem",
+              color: "white",
               marginBottom: "0.25rem",
             }}
           >
             {prenomEnfant} {nomEnfant}
           </div>
-          <div style={{ fontSize: "0.78rem", opacity: 0.5 }}>
-            Né(e) le {formatDate(dateNaissance)} à {lieuNaissance}
+          <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)" }}>
+            Né(e) le {dateNaissance} à {lieuNaissance}
           </div>
         </div>
 
@@ -88,17 +107,19 @@ export default function DeclarationCard({
           <div style={{ textAlign: "right", flexShrink: 0 }}>
             <div
               style={{
-                fontSize: "0.65rem",
+                fontSize: "0.62rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
-                color: "var(--gold)",
-                opacity: 0.6,
+                color: "#f77f00",
+                opacity: 0.7,
                 marginBottom: "0.2rem",
               }}
             >
               N° Acte
             </div>
-            <div style={{ fontSize: "0.78rem", fontWeight: 500 }}>
+            <div
+              style={{ fontSize: "0.78rem", fontWeight: 500, color: "white" }}
+            >
               {acteNumero}
             </div>
           </div>
@@ -108,10 +129,10 @@ export default function DeclarationCard({
         <div style={{ textAlign: "center", flexShrink: 0 }}>
           <div
             style={{
-              fontSize: "0.65rem",
+              fontSize: "0.62rem",
               textTransform: "uppercase",
               letterSpacing: "0.1em",
-              opacity: 0.45,
+              color: "rgba(255,255,255,0.3)",
               marginBottom: "0.2rem",
             }}
           >
@@ -119,20 +140,20 @@ export default function DeclarationCard({
           </div>
           <div
             style={{
-              fontSize: "0.9rem",
-              fontWeight: 500,
-              color: "var(--bg-card)",
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              color: "#009a44",
             }}
           >
-            {nbExtraits}
+            {extraitsCount}
           </div>
         </div>
 
-        <StatusBadge statut={statut} />
+        {statusBadge}
 
         <span
           style={{
-            color: "var(--bg-card)",
+            color: "#f77f00",
             opacity: 0.6,
             fontSize: "0.9rem",
             flexShrink: 0,

@@ -52,7 +52,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
           fontSize: "0.62rem",
           textTransform: "uppercase",
           letterSpacing: "0.15em",
-          color: "var(--gold)",
+          color: "var( --ci-orange)",
           opacity: 0.7,
           marginBottom: "0.3rem",
         }}
@@ -73,7 +73,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
             href="/citoyen/declaration"
             style={{
               fontSize: "0.78rem",
-              color: "var(--cream)",
+              color: "var( --ci-orange)",
               opacity: 0.6,
               textDecoration: "none",
             }}
@@ -90,6 +90,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
             gridTemplateColumns: "1fr 340px",
             gap: "1.5rem",
             alignItems: "start",
+            color: "white",
           }}
         >
           <div
@@ -116,7 +117,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
                 </span>
               )}
               {declaration.acte && (
-                <Badge color="gold">N° {declaration.acte.numero}</Badge>
+                <Badge color="orange">N° {declaration.acte.numero}</Badge>
               )}
             </Card>
 
@@ -126,7 +127,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
                   fontSize: "0.65rem",
                   textTransform: "uppercase",
                   letterSpacing: "0.2em",
-                  color: "var(--gold)",
+                  color: "var(--bg-card)",
                   opacity: 0.7,
                   marginBottom: "1.25rem",
                   paddingBottom: "0.75rem",
@@ -162,7 +163,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
                   fontSize: "0.65rem",
                   textTransform: "uppercase",
                   letterSpacing: "0.2em",
-                  color: "var(--gold)",
+                  color: "var(--bg-card)",
                   opacity: 0.7,
                   marginBottom: "1.25rem",
                   paddingBottom: "0.75rem",
@@ -196,7 +197,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
                     fontSize: "0.65rem",
                     textTransform: "uppercase",
                     letterSpacing: "0.2em",
-                    color: "var(--gold)",
+                    color: "var(--bg-card)",
                     opacity: 0.7,
                     marginBottom: "1.25rem",
                     paddingBottom: "0.75rem",
@@ -241,7 +242,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
                         rel="noreferrer"
                         style={{
                           fontSize: "0.75rem",
-                          color: "var(--gold)",
+                          color: "var( --ci-orange)",
                           textDecoration: "none",
                         }}
                       >
@@ -262,7 +263,7 @@ export default async function DeclarationDetailPage({ params }: Props) {
                     fontSize: "0.65rem",
                     textTransform: "uppercase",
                     letterSpacing: "0.2em",
-                    color: "var(--gold)",
+                    color: "var(--bg-card)",
                     opacity: 0.7,
                     marginBottom: "1.25rem",
                     paddingBottom: "0.75rem",

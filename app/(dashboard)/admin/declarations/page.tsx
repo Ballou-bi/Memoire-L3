@@ -24,7 +24,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
   if (user.role !== "ADMIN") redirect(`/${user.role.toLowerCase()}`);
 
   const page = parseInt(pageStr ?? "1");
-  const limit = 15;
+  const limit = 10;
   const skip = (page - 1) * limit;
 
   const where: Record<string, unknown> = {};
@@ -79,6 +79,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
             gap: "0.75rem",
             marginBottom: "1.5rem",
             flexWrap: "wrap",
+            color: "var( --ci-orange)",
           }}
         >
           {FILTRES.map((f) => (
@@ -95,7 +96,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                 fontWeight: 500,
                 background:
                   filterStatut === f.value || (!filterStatut && f.value === "")
-                    ? "var(--gold)"
+                    ? "var(--bg-card)"
                     : "rgba(255,255,255,0.04)",
                 color:
                   filterStatut === f.value || (!filterStatut && f.value === "")
@@ -149,7 +150,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.62rem",
                           textTransform: "uppercase",
                           letterSpacing: "0.1em",
-                          color: "var(--gold)",
+                          color: "var(--bg-card)",
                           opacity: 0.7,
                           fontWeight: 500,
                           whiteSpace: "nowrap",
@@ -187,6 +188,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
+                          color: "var(--bg-card)",
                         }}
                       >
                         {formatDate(d.dateNaissance)}
@@ -210,6 +212,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
+                          color: "var(--bg-card)",
                         }}
                       >
                         {d.citoyen.prenom} {d.citoyen.nom}
@@ -233,7 +236,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                         style={{
                           padding: "0.875rem 1rem",
                           fontSize: "0.78rem",
-                          color: "var(--gold)",
+                          color: "var(--bg-card)",
                           opacity: 0.7,
                         }}
                       >
@@ -244,7 +247,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           href={`/officier/declaration/${d.id}`}
                           style={{
                             fontSize: "0.72rem",
-                            color: "var(--gold)",
+                            color: "var(--ci-orange)",
                             textDecoration: "none",
                             opacity: 0.8,
                           }}
@@ -266,6 +269,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                   gap: "0.5rem",
                   justifyContent: "center",
                   marginTop: "1.5rem",
+                  // color: "var(--ci-orange)",
                 }}
               >
                 {Array.from(
@@ -285,7 +289,9 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                       fontSize: "0.8rem",
                       textDecoration: "none",
                       background:
-                        p === page ? "var(--gold)" : "rgba(255,255,255,0.04)",
+                        p === page
+                          ? "var(-ci-orange)"
+                          : "rgba(255,255,255,0.04)",
                       color: p === page ? "var(--navy)" : "var(--cream)",
                       border: "1px solid rgba(201,168,76,0.2)",
                     }}

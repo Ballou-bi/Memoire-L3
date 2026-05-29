@@ -73,11 +73,11 @@ export default async function OfficierStatsPage() {
               fontSize: "0.65rem",
               textTransform: "uppercase",
               letterSpacing: "0.2em",
-              color: "var(--gold)",
+              color: "var(--bg-card)",
               opacity: 0.7,
             }}
           >
-            Plateforme — vue globale
+            Vue globale
           </span>
         </div>
         <div
@@ -91,12 +91,12 @@ export default async function OfficierStatsPage() {
           <StatsCard
             label="Total déclarations"
             value={totalDeclarations}
-            color="gold"
+            color="orange"
           />
           <StatsCard
             label="En attente"
             value={enAttente}
-            color="blue"
+            color="green"
             sub="À traiter"
           />
           <StatsCard
@@ -105,7 +105,7 @@ export default async function OfficierStatsPage() {
             color="green"
             sub={`${tauxValidationGlobal}% du total`}
           />
-          <StatsCard label="Rejetées" value={rejetees} color="red" />
+          <StatsCard label="Rejetées" value={rejetees} color="dark" />
         </div>
 
         <div
@@ -119,7 +119,7 @@ export default async function OfficierStatsPage() {
           <StatsCard
             label="Extraits délivrés"
             value={totalExtraits}
-            color="gold"
+            color="orange"
             sub="Sur toutes les déclarations validées"
           />
           <StatsCard
@@ -136,7 +136,7 @@ export default async function OfficierStatsPage() {
               fontSize: "0.65rem",
               textTransform: "uppercase",
               letterSpacing: "0.2em",
-              color: "var(--gold)",
+              color: "var(--bg-card)",
               opacity: 0.7,
             }}
           >
@@ -159,12 +159,12 @@ export default async function OfficierStatsPage() {
           <StatsCard
             label="Rejetées par moi"
             value={rejeteesParMoi}
-            color="red"
+            color="white"
           />
           <StatsCard
             label="Mon taux de validation"
             value={`${tauxValidationPersonnel}%`}
-            color="gold"
+            color="orange"
             sub={`Sur ${valideesParMoi + rejeteesParMoi} dossier${valideesParMoi + rejeteesParMoi > 1 ? "s" : ""} traité${valideesParMoi + rejeteesParMoi > 1 ? "s" : ""}`}
           />
         </div>
@@ -195,6 +195,7 @@ export default async function OfficierStatsPage() {
                     style={{
                       borderBottom: "1px solid rgba(201,168,76,0.1)",
                       background: "rgba(255,255,255,0.02)",
+                      color: "var(--bg-card)",
                     }}
                   >
                     {["Enfant", "Citoyen", "Décision", "Date"].map((h) => (
@@ -206,7 +207,7 @@ export default async function OfficierStatsPage() {
                           fontSize: "0.62rem",
                           textTransform: "uppercase",
                           letterSpacing: "0.1em",
-                          color: "var(--gold)",
+                          color: "var(--bg-card)",
                           opacity: 0.7,
                           fontWeight: 500,
                         }}

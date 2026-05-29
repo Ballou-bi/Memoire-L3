@@ -90,7 +90,7 @@ export default async function OfficierDeclarationsPage({
                 fontWeight: 500,
                 background:
                   filterStatut === f.value || (!filterStatut && f.value === "")
-                    ? "var(--gold)"
+                    ? "var(--bg-card)"
                     : "rgba(255,255,255,0.04)",
                 color:
                   filterStatut === f.value || (!filterStatut && f.value === "")
@@ -143,7 +143,7 @@ export default async function OfficierDeclarationsPage({
                           fontSize: "0.62rem",
                           textTransform: "uppercase",
                           letterSpacing: "0.1em",
-                          color: "var(--gold)",
+                          color: "var(--bg-card)",
                           opacity: 0.7,
                           fontWeight: 500,
                           whiteSpace: "nowrap",
@@ -171,6 +171,7 @@ export default async function OfficierDeclarationsPage({
                           fontWeight: 500,
                           fontSize: "0.88rem",
                           whiteSpace: "nowrap",
+                          color: "var(--bg-card)",
                         }}
                       >
                         {d.prenomEnfant} {d.nomEnfant}
@@ -194,6 +195,7 @@ export default async function OfficierDeclarationsPage({
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
+                          color: "var(--bg-card)",
                         }}
                       >
                         {d.lieuNaissance}
@@ -215,7 +217,7 @@ export default async function OfficierDeclarationsPage({
                         style={{
                           padding: "0.875rem 1rem",
                           fontSize: "0.78rem",
-                          color: "var(--gold)",
+                          color: "var(--bg-card)",
                           opacity: 0.7,
                         }}
                       >
@@ -229,7 +231,7 @@ export default async function OfficierDeclarationsPage({
                               display: "inline-block",
                               background: "rgba(201,168,76,0.1)",
                               border: "1px solid rgba(201,168,76,0.25)",
-                              color: "var(--gold)",
+                              color: "var(--bg-card)",
                               padding: "0.3rem 0.75rem",
                               borderRadius: "2px",
                               textDecoration: "none",

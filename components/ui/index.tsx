@@ -1,46 +1,56 @@
 "use client";
 
-// ── Button ──────────────────────────────────────────────────
+// ── Button ─────────────────────────────────────────────────────────────────
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "outline" | "ghost" | "danger";
+  variant?: "primary" | "outline" | "ghost" | "danger" | "green";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
   children: React.ReactNode;
 }
 
-const btnStyles = {
-  primary: {
-    background: "var(--gold)",
-    color: "var(--navy)",
-    border: "1px solid transparent",
-  },
+const btnBase: React.CSSProperties = {
+  borderRadius: "10px",
+  fontFamily: "inherit",
+  fontWeight: 600,
+  letterSpacing: "0.01em",
+  cursor: "pointer",
+  transition: "all 0.15s",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.5rem",
+  border: "none",
+};
+
+const btnVariants = {
+  primary: { background: "var(--ci-orange)", color: "#FFFFFF" },
+  green: { background: "var(--ci-green)", color: "#FFFFFF" },
   outline: {
     background: "transparent",
-    color: "var(--cream)",
-    border: "1px solid rgba(248,244,237,0.25)",
+    color: "var(--text-primary)",
+    border: "1.5px solid var(--border-strong)",
   },
   ghost: {
     background: "transparent",
-    color: "var(--cream)",
-    border: "1px solid transparent",
+    color: "var(--text-secondary)",
+    border: "none",
   },
   danger: {
-    background: "rgba(239,68,68,0.1)",
-    color: "#f87171",
-    border: "1px solid rgba(239,68,68,0.3)",
+    background: "#FEF2F2",
+    color: "#EF4444",
+    border: "1.5px solid #FECACA",
   },
 };
 
-const sizeStyles = {
-  sm: { padding: "0.4rem 1rem", fontSize: "0.75rem" },
-  md: { padding: "0.65rem 1.5rem", fontSize: "0.82rem" },
-  lg: { padding: "0.9rem 2rem", fontSize: "0.9rem" },
+const btnSizes = {
+  sm: { padding: "0.45rem 0.875rem", fontSize: "0.78rem" },
+  md: { padding: "0.65rem 1.25rem", fontSize: "0.85rem" },
+  lg: { padding: "0.85rem 1.75rem", fontSize: "0.92rem" },
 };
 
 export function Button({
   variant = "primary",
   size = "md",
-  loading = false,
+  loading,
   children,
   disabled,
   style,
@@ -50,19 +60,11 @@ export function Button({
     <button
       disabled={disabled || loading}
       style={{
-        ...btnStyles[variant],
-        ...sizeStyles[size],
-        borderRadius: "2px",
-        fontFamily: "inherit",
-        fontWeight: 500,
-        letterSpacing: "0.06em",
-        textTransform: "uppercase",
+        ...btnBase,
+        ...btnVariants[variant],
+        ...btnSizes[size],
+        opacity: disabled || loading ? 0.55 : 1,
         cursor: disabled || loading ? "not-allowed" : "pointer",
-        opacity: disabled || loading ? 0.5 : 1,
-        transition: "all 0.15s",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "0.5rem",
         ...style,
       }}
       {...props}
@@ -86,56 +88,43 @@ export function Button({
   );
 }
 
-// ── Badge ────────────────────────────────────────────────────
+// ── Badge ──────────────────────────────────────────────────────────────────
 interface BadgeProps {
   children: React.ReactNode;
-  color?: "gold" | "green" | "red" | "blue" | "gray";
+  color?: "orange" | "green" | "gray" | "red" | "blue";
 }
 
-const badgeColors = {
-  gold: {
-    bg: "rgba(201,168,76,0.12)",
-    border: "rgba(201,168,76,0.3)",
-    color: "var(--gold)",
+const badgeThemes = {
+  orange: {
+    bg: "var(--ci-orange-light)",
+    color: "var(--ci-orange)",
+    border: "var(--ci-orange-mid)",
   },
   green: {
-    bg: "rgba(34,197,94,0.1)",
-    border: "rgba(34,197,94,0.3)",
-    color: "#4ade80",
+    bg: "var(--ci-green-light)",
+    color: "var(--ci-green)",
+    border: "var(--ci-green-mid)",
   },
-  red: {
-    bg: "rgba(239,68,68,0.1)",
-    border: "rgba(239,68,68,0.3)",
-    color: "#f87171",
-  },
-  blue: {
-    bg: "rgba(96,165,250,0.1)",
-    border: "rgba(96,165,250,0.3)",
-    color: "#60a5fa",
-  },
-  gray: {
-    bg: "rgba(255,255,255,0.06)",
-    border: "rgba(255,255,255,0.12)",
-    color: "rgba(248,244,237,0.6)",
-  },
+  gray: { bg: "#F3F4F6", color: "#6B7280", border: "#E5E7EB" },
+  red: { bg: "#FEF2F2", color: "#EF4444", border: "#FECACA" },
+  blue: { bg: "#EFF6FF", color: "#3B82F6", border: "#BFDBFE" },
 };
 
 export function Badge({ children, color = "gray" }: BadgeProps) {
-  const c = badgeColors[color];
+  const t = badgeThemes[color];
   return (
     <span
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "0.35rem",
-        background: c.bg,
-        border: `1px solid ${c.border}`,
-        color: c.color,
+        gap: "0.3rem",
+        background: t.bg,
+        border: `1px solid ${t.border}`,
+        color: t.color,
         padding: "0.2rem 0.65rem",
         borderRadius: "100px",
-        fontSize: "0.7rem",
-        fontWeight: 500,
-        letterSpacing: "0.06em",
+        fontSize: "0.72rem",
+        fontWeight: 600,
         whiteSpace: "nowrap",
       }}
     >
@@ -144,20 +133,17 @@ export function Badge({ children, color = "gray" }: BadgeProps) {
   );
 }
 
-// ── StatusBadge ──────────────────────────────────────────────
-const statusConfig = {
-  EN_ATTENTE: { label: "En attente", color: "gold" as const },
+// ── StatusBadge ────────────────────────────────────────────────────────────
+const statusMap = {
+  EN_ATTENTE: { label: "En attente", color: "orange" as const },
   VALIDEE: { label: "Validée", color: "green" as const },
   REJETEE: { label: "Rejetée", color: "red" as const },
 };
 
-export function StatusBadge({ statut }: { statut: keyof typeof statusConfig }) {
-  const config = statusConfig[statut] ?? {
-    label: statut,
-    color: "gray" as const,
-  };
+export function StatusBadge({ statut }: { statut: keyof typeof statusMap }) {
+  const s = statusMap[statut] ?? { label: statut, color: "gray" as const };
   return (
-    <Badge color={config.color}>
+    <Badge color={s.color}>
       <span
         style={{
           width: "5px",
@@ -168,12 +154,12 @@ export function StatusBadge({ statut }: { statut: keyof typeof statusConfig }) {
           flexShrink: 0,
         }}
       />
-      {config.label}
+      {s.label}
     </Badge>
   );
 }
 
-// ── Card ─────────────────────────────────────────────────────
+// ── Card ───────────────────────────────────────────────────────────────────
 export function Card({
   children,
   style,
@@ -184,9 +170,9 @@ export function Card({
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.02)",
-        border: "1px solid rgba(201,168,76,0.1)",
-        borderRadius: "4px",
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: "14px",
         ...style,
       }}
     >
@@ -195,13 +181,13 @@ export function Card({
   );
 }
 
-// ── Input ────────────────────────────────────────────────────
+// ── Input ──────────────────────────────────────────────────────────────────
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
 
-export function Input({ label, error, style, id, ...props }: InputProps) {
+export function Input({ label, error, id, style, ...props }: InputProps) {
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
@@ -209,11 +195,9 @@ export function Input({ label, error, style, id, ...props }: InputProps) {
         <label
           htmlFor={inputId}
           style={{
-            fontSize: "0.65rem",
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            color: "var(--gold)",
-            opacity: 0.8,
+            fontSize: "0.78rem",
+            fontWeight: 600,
+            color: "var(--text-secondary)",
           }}
         >
           {label}
@@ -222,33 +206,31 @@ export function Input({ label, error, style, id, ...props }: InputProps) {
       <input
         id={inputId}
         style={{
-          background: "rgba(255,255,255,0.04)",
-          border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "rgba(201,168,76,0.2)"}`,
-          borderRadius: "2px",
+          background: "#FAFAFA",
+          border: `1.5px solid ${error ? "#FECACA" : "var(--border)"}`,
+          borderRadius: "10px",
           padding: "0.65rem 0.875rem",
-          color: "var(--cream)",
+          color: "var(--text-primary)",
           fontSize: "0.875rem",
           fontFamily: "inherit",
           width: "100%",
           transition: "border-color 0.15s",
           ...style,
         }}
-        onFocus={(e) => (e.target.style.borderColor = "rgba(201,168,76,0.5)")}
+        onFocus={(e) => (e.target.style.borderColor = "var(--ci-orange)")}
         onBlur={(e) =>
-          (e.target.style.borderColor = error
-            ? "rgba(239,68,68,0.5)"
-            : "rgba(201,168,76,0.2)")
+          (e.target.style.borderColor = error ? "#FECACA" : "var(--border)")
         }
         {...props}
       />
       {error && (
-        <span style={{ fontSize: "0.72rem", color: "#f87171" }}>{error}</span>
+        <span style={{ fontSize: "0.72rem", color: "#EF4444" }}>{error}</span>
       )}
     </div>
   );
 }
 
-// ── Select ───────────────────────────────────────────────────
+// ── Select ─────────────────────────────────────────────────────────────────
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
@@ -263,11 +245,9 @@ export function Select({ label, error, options, id, ...props }: SelectProps) {
         <label
           htmlFor={inputId}
           style={{
-            fontSize: "0.65rem",
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            color: "var(--gold)",
-            opacity: 0.8,
+            fontSize: "0.78rem",
+            fontWeight: 600,
+            color: "var(--text-secondary)",
           }}
         >
           {label}
@@ -276,11 +256,11 @@ export function Select({ label, error, options, id, ...props }: SelectProps) {
       <select
         id={inputId}
         style={{
-          background: "#0d1e38",
-          border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "rgba(201,168,76,0.2)"}`,
-          borderRadius: "2px",
+          background: "#FAFAFA",
+          border: `1.5px solid ${error ? "#FECACA" : "var(--border)"}`,
+          borderRadius: "10px",
           padding: "0.65rem 0.875rem",
-          color: "var(--cream)",
+          color: "var(--text-primary)",
           fontSize: "0.875rem",
           fontFamily: "inherit",
           width: "100%",
@@ -288,20 +268,20 @@ export function Select({ label, error, options, id, ...props }: SelectProps) {
         }}
         {...props}
       >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
           </option>
         ))}
       </select>
       {error && (
-        <span style={{ fontSize: "0.72rem", color: "#f87171" }}>{error}</span>
+        <span style={{ fontSize: "0.72rem", color: "#EF4444" }}>{error}</span>
       )}
     </div>
   );
 }
 
-// ── Textarea ─────────────────────────────────────────────────
+// ── Textarea ───────────────────────────────────────────────────────────────
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
@@ -315,11 +295,9 @@ export function Textarea({ label, error, id, ...props }: TextareaProps) {
         <label
           htmlFor={inputId}
           style={{
-            fontSize: "0.65rem",
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            color: "var(--gold)",
-            opacity: 0.8,
+            fontSize: "0.78rem",
+            fontWeight: 600,
+            color: "var(--text-secondary)",
           }}
         >
           {label}
@@ -328,11 +306,11 @@ export function Textarea({ label, error, id, ...props }: TextareaProps) {
       <textarea
         id={inputId}
         style={{
-          background: "rgba(255,255,255,0.04)",
-          border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "rgba(201,168,76,0.2)"}`,
-          borderRadius: "2px",
+          background: "#FAFAFA",
+          border: `1.5px solid ${error ? "#FECACA" : "var(--border)"}`,
+          borderRadius: "10px",
           padding: "0.65rem 0.875rem",
-          color: "var(--cream)",
+          color: "var(--text-primary)",
           fontSize: "0.875rem",
           fontFamily: "inherit",
           width: "100%",
@@ -342,13 +320,13 @@ export function Textarea({ label, error, id, ...props }: TextareaProps) {
         {...props}
       />
       {error && (
-        <span style={{ fontSize: "0.72rem", color: "#f87171" }}>{error}</span>
+        <span style={{ fontSize: "0.72rem", color: "#EF4444" }}>{error}</span>
       )}
     </div>
   );
 }
 
-// ── EmptyState ───────────────────────────────────────────────
+// ── EmptyState ─────────────────────────────────────────────────────────────
 export function EmptyState({
   title,
   subtitle,
@@ -362,26 +340,26 @@ export function EmptyState({
     <div style={{ textAlign: "center", padding: "4rem 2rem" }}>
       <div
         style={{
-          width: "60px",
-          height: "60px",
-          border: "1px solid rgba(201,168,76,0.2)",
-          borderRadius: "50%",
+          width: "64px",
+          height: "64px",
+          borderRadius: "16px",
+          background: "var(--ci-orange-light)",
+          border: "1px solid var(--ci-orange-mid)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          margin: "0 auto 1.5rem",
-          color: "var(--gold)",
-          opacity: 0.5,
+          margin: "0 auto 1.25rem",
           fontSize: "1.5rem",
         }}
       >
-        ○
+        📄
       </div>
       <h3
         style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: "1.3rem",
-          color: "var(--cream)",
+          fontFamily: "'Fraunces', serif",
+          fontSize: "1.2rem",
+          fontWeight: 700,
+          color: "var(--text-primary)",
           marginBottom: "0.5rem",
         }}
       >
@@ -391,8 +369,7 @@ export function EmptyState({
         <p
           style={{
             fontSize: "0.82rem",
-            color: "var(--cream)",
-            opacity: 0.45,
+            color: "var(--text-muted)",
             maxWidth: "360px",
             margin: "0 auto",
           }}
@@ -405,15 +382,15 @@ export function EmptyState({
   );
 }
 
-// ── Spinner ──────────────────────────────────────────────────
+// ── Spinner ────────────────────────────────────────────────────────────────
 export function Spinner({ size = 20 }: { size?: number }) {
   return (
     <div
       style={{
         width: size,
         height: size,
-        border: `2px solid rgba(201,168,76,0.2)`,
-        borderTopColor: "var(--gold)",
+        border: `2px solid var(--border)`,
+        borderTopColor: "var(--ci-orange)",
         borderRadius: "50%",
         animation: "spin 0.7s linear infinite",
         display: "inline-block",

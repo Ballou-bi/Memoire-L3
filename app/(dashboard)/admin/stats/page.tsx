@@ -84,7 +84,7 @@ export default async function AdminStatsPage() {
               fontSize: "0.65rem",
               textTransform: "uppercase",
               letterSpacing: "0.2em",
-              color: "var(--gold)",
+              color: "var(--bg-card)",
               opacity: 0.7,
             }}
           >
@@ -99,11 +99,11 @@ export default async function AdminStatsPage() {
             marginBottom: "2.5rem",
           }}
         >
-          <StatsCard label="Total" value={totalDeclarations} color="gold" />
+          <StatsCard label="Total" value={totalDeclarations} color="orange" />
           <StatsCard
             label="En attente"
             value={enAttente}
-            color="blue"
+            color="white"
             sub="À traiter"
           />
           <StatsCard
@@ -115,7 +115,7 @@ export default async function AdminStatsPage() {
           <StatsCard
             label="Rejetées"
             value={rejetees}
-            color="red"
+            color="dark"
             sub={`${tauxRejet}% du total`}
           />
         </div>
@@ -127,7 +127,7 @@ export default async function AdminStatsPage() {
               fontSize: "0.65rem",
               textTransform: "uppercase",
               letterSpacing: "0.2em",
-              color: "var(--gold)",
+              color: "var(--bg-card)",
               opacity: 0.7,
             }}
           >
@@ -145,14 +145,18 @@ export default async function AdminStatsPage() {
           <StatsCard
             label="Citoyens inscrits"
             value={totalCitoyens}
-            color="blue"
+            color="green"
           />
           <StatsCard
             label="Officiers actifs"
             value={totalOfficiers}
-            color="gold"
+            color="white"
           />
-          <StatsCard label="Administrateurs" value={totalAdmins} color="gold" />
+          <StatsCard
+            label="Administrateurs"
+            value={totalAdmins}
+            color="white"
+          />
           <StatsCard
             label="Extraits délivrés"
             value={totalExtraits}
@@ -175,6 +179,7 @@ export default async function AdminStatsPage() {
                 fontSize: "1.15rem",
                 fontWeight: 600,
                 marginBottom: "1rem",
+                // color: "var(--bg-card)",
               }}
             >
               Dernières déclarations
@@ -184,6 +189,7 @@ export default async function AdminStatsPage() {
                 border: "1px solid rgba(201,168,76,0.1)",
                 borderRadius: "4px",
                 overflow: "hidden",
+                color: "var(--bg-card)",
               }}
             >
               {dernieresDeclarations.length === 0 ? (
@@ -193,6 +199,7 @@ export default async function AdminStatsPage() {
                     textAlign: "center",
                     opacity: 0.4,
                     fontSize: "0.82rem",
+                    color: "var(--bg-card)",
                   }}
                 >
                   Aucune déclaration
@@ -315,7 +322,7 @@ export default async function AdminStatsPage() {
                         style={{
                           fontSize: "1.1rem",
                           fontWeight: 600,
-                          color: "var(--gold)",
+                          color: "var(-ci-orange)",
                           fontFamily: "'Cormorant Garamond', serif",
                         }}
                       >
