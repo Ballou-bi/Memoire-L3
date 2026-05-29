@@ -51,7 +51,7 @@ export default function NotFound() {
       <Link
         href="/"
         style={{
-          background: "var(--gold)",
+          background: "var(--ci-orange)",
           color: "var(--navy)",
           padding: "0.75rem 2rem",
           borderRadius: "2px",

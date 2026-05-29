@@ -10,7 +10,7 @@ export async function getDbUser() {
   return prisma.user.findUnique({ where: { clerkId: userId } });
 }
 
-// ── Récupère le rôle — SOURCE UNIQUE : la DB ─────────────────────────────────
+// ── Récupère le rôle — SOURCE UNIQUE : la DB ──
 // On lit TOUJOURS depuis la DB pour les pages/API
 // Le proxy.ts lit depuis sessionClaims pour les redirections réseau
 export async function getRole(): Promise<Role> {
