@@ -73,8 +73,8 @@ export default function RoleChanger({ userId, currentRole }: Props) {
           onClick={save}
           disabled={loading}
           style={{
-            background: loading ? "rgba(201,168,76,0.3)" : "var(--gold)",
-            color: "var(--navy)",
+            background: loading ? "rgba(247,127,0,0.3)" : "#f77f00",
+            color: "white",
             border: "none",
             borderRadius: "2px",
             padding: "0.3rem 0.75rem",
@@ -90,7 +90,7 @@ export default function RoleChanger({ userId, currentRole }: Props) {
       )}
 
       {saved && (
-        <span style={{ fontSize: "0.72rem", color: "#4ade80" }}>✓</span>
+        <span style={{ fontSize: "0.72rem", color: "#009a44" }}>✓</span>
       )}
     </div>
   );

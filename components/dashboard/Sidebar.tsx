@@ -44,6 +44,7 @@ const icons = {
   plus: <Ico d="M12 5v14 M5 12h14" />,
   menu: <Ico d="M3 6h18 M3 12h18 M3 18h18" />,
   x: <Ico d="M18 6L6 18 M6 6l12 12" />,
+  search: <Ico d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />,
 };
 
 const navByRole: Record<Role, NavItem[]> = {
@@ -64,6 +65,11 @@ const navByRole: Record<Role, NavItem[]> = {
   OFFICIER: [
     { label: "Tableau de bord", href: "/officier", icon: icons.home },
     { label: "Déclarations", href: "/officier/declaration", icon: icons.check },
+    {
+      label: "Recherche acte",
+      href: "/officier/recherche",
+      icon: icons.search,
+    },
     { label: "Statistiques", href: "/officier/stats", icon: icons.chart },
   ],
   ADMIN: [
@@ -71,6 +77,7 @@ const navByRole: Record<Role, NavItem[]> = {
     { label: "Déclarations", href: "/admin/declarations", icon: icons.file },
     { label: "Extraits", href: "/admin/extraits", icon: icons.download },
     { label: "Utilisateurs", href: "/admin/users", icon: icons.users },
+    { label: "Recherche acte", href: "/admin/recherche", icon: icons.search },
     { label: "Statistiques", href: "/admin/stats", icon: icons.chart },
   ],
 };
@@ -104,7 +111,6 @@ function NavContent({
       >
         <Link href="/" style={{ textDecoration: "none" }} onClick={onLink}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-            {/* Drapeau CI mini */}
             <div
               style={{
                 display: "flex",
@@ -348,6 +354,7 @@ export default function Sidebar({
         </Link>
         <button
           onClick={() => setOpen(true)}
+          aria-label="Ouvrir le menu"
           style={{
             background: "rgba(255,255,255,0.08)",
             border: "none",
@@ -366,12 +373,12 @@ export default function Sidebar({
       {open && (
         <div
           onClick={() => setOpen(false)}
+          aria-hidden="true"
           style={{
             position: "fixed",
             inset: 0,
             background: "rgba(0,0,0,0.5)",
             zIndex: 70,
-            animation: "fadeIn 0.2s ease",
           }}
         />
       )}
@@ -392,6 +399,7 @@ export default function Sidebar({
       >
         <button
           onClick={() => setOpen(false)}
+          aria-label="Fermer le menu"
           style={{
             position: "absolute",
             top: "1rem",
