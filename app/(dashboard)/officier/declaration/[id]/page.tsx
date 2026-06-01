@@ -161,6 +161,66 @@ export default async function OfficierDeclarationPage({ params }: Props) {
             </SectionCard>
 
             <SectionCard title="Filiation">
+              {/* ── Père ── */}
+              <div
+                style={{
+                  fontSize: "0.62rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.15em",
+                  color: "#009a44",
+                  fontWeight: 600,
+                  marginBottom: "0.875rem",
+                }}
+              >
+                Père
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "1.25rem",
+                  marginBottom: "1.5rem",
+                }}
+              >
+                <Field
+                  label="Nom complet"
+                  value={`${declaration.prenomPere} ${declaration.nomPere}`}
+                />
+                <Field
+                  label="Profession"
+                  value={declaration.professionPere ?? "—"}
+                />
+                <Field
+                  label="Nationalité"
+                  value={declaration.nationalitePere ?? "—"}
+                />
+                <Field
+                  label="Domicilié"
+                  value={declaration.residencePere ?? "—"}
+                />
+              </div>
+
+              {/* Séparateur */}
+              <div
+                style={{
+                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                  marginBottom: "1.25rem",
+                }}
+              />
+
+              {/* ── Mère ── */}
+              <div
+                style={{
+                  fontSize: "0.62rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.15em",
+                  color: "#009a44",
+                  fontWeight: 600,
+                  marginBottom: "0.875rem",
+                }}
+              >
+                Mère
+              </div>
               <div
                 style={{
                   display: "grid",
@@ -169,12 +229,20 @@ export default async function OfficierDeclarationPage({ params }: Props) {
                 }}
               >
                 <Field
-                  label="Père"
-                  value={`${declaration.prenomPere} ${declaration.nomPere}`}
+                  label="Nom complet"
+                  value={`${declaration.prenomMere} ${declaration.nomMere}`}
                 />
                 <Field
-                  label="Mère"
-                  value={`${declaration.prenomMere} ${declaration.nomMere}`}
+                  label="Profession"
+                  value={declaration.professionMere ?? "—"}
+                />
+                <Field
+                  label="Nationalité"
+                  value={declaration.nationaliteMere ?? "—"}
+                />
+                <Field
+                  label="Domiciliée"
+                  value={declaration.residenceMere ?? "—"}
                 />
               </div>
             </SectionCard>

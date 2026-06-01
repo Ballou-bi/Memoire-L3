@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// RegistreNatal — schema.prisma
-// Compatible : Prisma 7.x · PostgreSQL (Neon serverless)
-// ─────────────────────────────────────────────────────────────────────────────
 
 generator client {
   provider = "prisma-client-js"
