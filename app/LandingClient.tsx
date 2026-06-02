@@ -1,9 +1,81 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/refs */
 /* eslint-disable @next/next/no-html-link-for-pages */
 "use client";
 
 import Link from "next/link";
+import { motion, useInView, useScroll, useTransform } from "motion/react";
+import { useRef, useEffect, useState } from "react";
+
+// ── Hook scroll-triggered ────────────────────────────────────────────────────
+function useReveal() {
+  const ref = useRef(null);
+  const inViewValue = useInView(ref, { once: true, margin: "-80px" });
+  const [isInView, setIsInView] = useState(false);
+  useEffect(() => {
+    setIsInView(inViewValue);
+  }, [inViewValue]);
+  return { ref, isInView };
+}
+
+// ── Variants réutilisables ───────────────────────────────────────────────────
+const fadeUp = {
+  hidden: { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0 },
+};
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+const slideLeft = {
+  hidden: { opacity: 0, x: -40 },
+  visible: { opacity: 1, x: 0 },
+};
+const slideRight = {
+  hidden: { opacity: 0, x: 40 },
+  visible: { opacity: 1, x: 0 },
+};
+const stagger = {
+  visible: { transition: { staggerChildren: 0.1 } },
+};
 
 export default function LandingClient() {
+  // Parallax hero
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
+  // Compteur animé
+  const [counts, setCounts] = useState({ h: 0, pct: 0, types: 0 });
+  const statsRef = useRef(null);
+  const statsInView = useInView(statsRef, { once: true });
+  useEffect(() => {
+    if (!statsInView) return;
+    const duration = 1200;
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setCounts({
+        h: Math.round(ease * 72),
+        pct: Math.round(ease * 100),
+        types: Math.round(ease * 3),
+      });
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [statsInView]);
+
+  // Sections reveal
+  const featuresReveal = useReveal();
+  const rolesReveal = useReveal();
+  const ctaReveal = useReveal();
+
   return (
     <>
       <style>{`
@@ -26,7 +98,6 @@ export default function LandingClient() {
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-
         body {
           background: var(--ci-bg);
           color: var(--ci-text);
@@ -57,11 +128,7 @@ export default function LandingClient() {
           text-decoration: none;
         }
         .rn-logo span { color: var(--ci-white); }
-        .rn-nav ul {
-          display: flex;
-          gap: 2.5rem;
-          list-style: none;
-        }
+        .rn-nav ul { display: flex; gap: 2.5rem; list-style: none; }
         .rn-nav ul a {
           color: var(--ci-text);
           text-decoration: none;
@@ -104,6 +171,19 @@ export default function LandingClient() {
           background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(0,106,47,0.35) 0%, transparent 70%);
           pointer-events: none;
         }
+
+        /* Grille animée en fond */
+        .rn-grid-bg {
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(0,154,68,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,154,68,0.04) 1px, transparent 1px);
+          background-size: 60px 60px;
+          pointer-events: none;
+          mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+        }
+
         .rn-hero-grid-line {
           position: absolute;
           top: 0; right: 0; bottom: 0;
@@ -124,7 +204,6 @@ export default function LandingClient() {
           color: #f77f00;
           text-transform: uppercase;
           margin-bottom: 2rem;
-          animation: rnFadeUp 0.8s ease both;
         }
         .rn-dot {
           width: 6px; height: 6px;
@@ -133,20 +212,16 @@ export default function LandingClient() {
           animation: rnPulse 2s infinite;
         }
         @keyframes rnPulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(247,127,0,0.4); }
+          50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(247,127,0,0); }
         }
-        .rn-hero-content {
-          position: relative;
-          z-index: 1;
-        }
+        .rn-hero-content { position: relative; z-index: 1; }
         .rn-h1 {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(3rem, 5vw, 5.5rem);
           font-weight: 600;
           line-height: 1.05;
           margin-bottom: 1.5rem;
-          animation: rnFadeUp 0.8s 0.1s ease both;
           color: var(--ci-white);
         }
         .rn-h1 em { color: #009a44; font-style: italic; }
@@ -156,14 +231,8 @@ export default function LandingClient() {
           color: var(--ci-text-muted);
           max-width: 480px;
           margin-bottom: 3rem;
-          animation: rnFadeUp 0.8s 0.2s ease both;
         }
-        .rn-hero-actions {
-          display: flex;
-          gap: 1rem;
-          flex-wrap: wrap;
-          animation: rnFadeUp 0.8s 0.3s ease both;
-        }
+        .rn-hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
         .rn-btn-primary {
           background: #f77f00;
           color: var(--ci-white);
@@ -203,7 +272,6 @@ export default function LandingClient() {
           align-items: center;
           position: relative;
           z-index: 1;
-          animation: rnFadeUp 0.8s 0.4s ease both;
         }
         .rn-doc-card {
           background: rgba(255,255,255,0.03);
@@ -220,6 +288,22 @@ export default function LandingClient() {
           top: 0; left: 0; right: 0;
           height: 4px;
           background: linear-gradient(90deg, #f77f00, #009a44, transparent);
+        }
+        /* Reflet animé sur la card */
+        .rn-doc-card::after {
+          content: '';
+          position: absolute;
+          top: -100%;
+          left: -60%;
+          width: 40%;
+          height: 300%;
+          background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%);
+          animation: cardShine 4s ease-in-out infinite;
+          pointer-events: none;
+        }
+        @keyframes cardShine {
+          0%, 100% { left: -60%; }
+          50% { left: 120%; }
         }
         .rn-doc-header {
           text-align: center;
@@ -253,12 +337,7 @@ export default function LandingClient() {
           letter-spacing: 0.08em;
           margin-top: 0.25rem;
         }
-        .rn-doc-field {
-          display: flex;
-          flex-direction: column;
-          gap: 0.2rem;
-          margin-bottom: 1rem;
-        }
+        .rn-doc-field { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 1rem; }
         .rn-doc-label {
           font-size: 0.65rem;
           text-transform: uppercase;
@@ -277,7 +356,7 @@ export default function LandingClient() {
         .rn-doc-value.medium { width: 65%; }
         @keyframes rnShimmer {
           0%, 100% { opacity: 0.1; }
-          50% { opacity: 0.22; }
+          50% { opacity: 0.28; }
         }
         .rn-doc-qr {
           position: absolute;
@@ -310,6 +389,11 @@ export default function LandingClient() {
           letter-spacing: 0.05em;
           text-transform: uppercase;
           line-height: 1.3;
+          
+        }
+        @keyframes sealSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         .rn-status-badge {
           display: inline-flex;
@@ -328,6 +412,7 @@ export default function LandingClient() {
           width: 5px; height: 5px;
           background: #009a44;
           border-radius: 50%;
+          animation: rnPulse 2s infinite;
         }
 
         /* STATS */
@@ -337,7 +422,6 @@ export default function LandingClient() {
           gap: 1px;
           margin-top: 4rem;
           border: 1px solid rgba(0,154,68,0.15);
-          animation: rnFadeUp 0.8s 0.5s ease both;
         }
         .rn-stat {
           padding: 2rem;
@@ -410,10 +494,10 @@ export default function LandingClient() {
           background: rgba(255,255,255,0.02);
           border: 1px solid rgba(0,154,68,0.1);
           border-bottom: none;
-          transition: background 0.2s;
+          transition: background 0.2s, transform 0.2s;
         }
         .rn-process-step:last-child { border-bottom: 1px solid rgba(0,154,68,0.1); }
-        .rn-process-step:hover { background: rgba(0,154,68,0.05); }
+        .rn-process-step:hover { background: rgba(0,154,68,0.05); transform: translateX(4px); }
         .rn-step-icon {
           width: 40px; height: 40px;
           flex-shrink: 0;
@@ -422,11 +506,17 @@ export default function LandingClient() {
           display: flex;
           align-items: center;
           justify-content: center;
+          transition: background 0.2s, border-color 0.2s;
+        }
+        .rn-process-step:hover .rn-step-icon {
+          background: rgba(247,127,0,0.1);
+          border-color: #f77f00;
         }
         .rn-step-icon svg { width: 18px; height: 18px; stroke: #f77f00; fill: none; stroke-width: 1.5; }
         .rn-step-info-title { font-size: 0.9rem; font-weight: 500; color: var(--ci-white); margin-bottom: 0.3rem; }
         .rn-step-info-desc { font-size: 0.8rem; color: var(--ci-text-muted); line-height: 1.5; }
-        .rn-step-arrow { margin-left: auto; opacity: 0.4; font-size: 0.8rem; align-self: center; color: #009a44; }
+        .rn-step-arrow { margin-left: auto; opacity: 0.4; font-size: 0.8rem; align-self: center; color: #009a44; transition: opacity 0.2s, transform 0.2s; }
+        .rn-process-step:hover .rn-step-arrow { opacity: 1; transform: translateX(4px); }
 
         /* ROLES */
         .rn-roles {
@@ -439,7 +529,7 @@ export default function LandingClient() {
           border: 1px solid rgba(0,154,68,0.15);
           padding: 2.5rem 2rem;
           border-radius: 2px;
-          transition: border-color 0.3s, transform 0.3s;
+          transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
           position: relative;
           overflow: hidden;
         }
@@ -451,7 +541,11 @@ export default function LandingClient() {
           background: linear-gradient(to top, rgba(0,154,68,0.07), transparent);
           transition: height 0.3s;
         }
-        .rn-role-card:hover { border-color: rgba(247,127,0,0.4); transform: translateY(-4px); }
+        .rn-role-card:hover {
+          border-color: rgba(247,127,0,0.4);
+          transform: translateY(-6px);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
         .rn-role-card:hover::before { height: 100%; }
         .rn-role-icon {
           width: 48px; height: 48px;
@@ -461,6 +555,11 @@ export default function LandingClient() {
           align-items: center;
           justify-content: center;
           margin-bottom: 1.5rem;
+          transition: background 0.2s, border-color 0.2s;
+        }
+        .rn-role-card:hover .rn-role-icon {
+          background: rgba(247,127,0,0.1);
+          border-color: #f77f00;
         }
         .rn-role-icon svg { width: 22px; height: 22px; stroke: #f77f00; fill: none; stroke-width: 1.5; }
         .rn-role-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--ci-white); }
@@ -469,7 +568,7 @@ export default function LandingClient() {
         .rn-perm { display: flex; align-items: center; gap: 0.6rem; font-size: 0.75rem; color: var(--ci-text-muted); }
         .rn-perm-dot { width: 4px; height: 4px; background: #009a44; border-radius: 50%; flex-shrink: 0; }
 
-        /* CTA SECTION */
+        /* CTA */
         .rn-cta {
           padding: 6rem 4rem;
           border-top: 1px solid rgba(0,154,68,0.12);
@@ -496,13 +595,8 @@ export default function LandingClient() {
         }
         .rn-footer-copy { font-size: 0.75rem; color: var(--ci-text-muted); }
         .rn-footer-links { display: flex; gap: 2rem; }
-        .rn-footer-links a { font-size: 0.75rem; color: var(--ci-text-muted); text-decoration: none; transition: color 0.2s, opacity 0.2s; }
-        .rn-footer-links a:hover { color: #f77f00; opacity: 1; }
-
-        @keyframes rnFadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        .rn-footer-links a { font-size: 0.75rem; color: var(--ci-text-muted); text-decoration: none; transition: color 0.2s; }
+        .rn-footer-links a:hover { color: #f77f00; }
 
         @media (max-width: 900px) {
           .rn-nav { padding: 1.2rem 1.5rem; }
@@ -520,7 +614,12 @@ export default function LandingClient() {
       `}</style>
 
       {/* ── NAV ─────────────────────────────────────────── */}
-      <nav className="rn-nav">
+      <motion.nav
+        className="rn-nav"
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <a href="/" className="rn-logo">
           wa<span>ya</span>
         </a>
@@ -538,55 +637,113 @@ export default function LandingClient() {
         <Link href="/sign-in" className="rn-nav-cta">
           Se connecter
         </Link>
-      </nav>
+      </motion.nav>
 
       {/* ── HERO ────────────────────────────────────────── */}
-      <section className="rn-hero">
+      <section className="rn-hero" ref={heroRef}>
+        <div className="rn-grid-bg" />
         <div className="rn-hero-grid-line" />
-        <div className="rn-hero-content">
-          <div className="rn-hero-badge">
+
+        <motion.div
+          className="rn-hero-content"
+          style={{ y: heroY, opacity: heroOpacity }}
+        >
+          {/* Badge */}
+          <motion.div
+            className="rn-hero-badge"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
             <span className="rn-dot" />
-            Mémoire L3 — Digitalisation Administrative
-          </div>
-          <h1 className="rn-h1">
-            L&apos;extrait de
-            <br />
-            naissance à l&apos;ère
-            <br />
-            <em>numérique</em>
-          </h1>
-          <p className="rn-hero-desc">
+            Mémoire L3 — Digitalisation de l&apos;état civil
+          </motion.div>
+
+          {/* Titre — chaque ligne arrive séparément */}
+          <motion.h1
+            className="rn-h1"
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+          >
+            {[
+              "L'extrait de",
+              "naissance à l'ère",
+              <>
+                <em key="em">numérique</em>
+              </>,
+            ].map((line, i) => (
+              <motion.span
+                key={i}
+                variants={fadeUp}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                style={{ display: "block" }}
+              >
+                {line}
+              </motion.span>
+            ))}
+          </motion.h1>
+
+          <motion.p
+            className="rn-hero-desc"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+          >
             Une plateforme moderne qui digitalise entièrement le processus de
             déclaration, de validation et de délivrance des extraits de
             naissance, de la maternité au citoyen.
-          </p>
-          <div className="rn-hero-actions">
+          </motion.p>
+
+          <motion.div
+            className="rn-hero-actions"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+          >
             <Link href="/sign-up" className="rn-btn-primary">
               Faire une demande
             </Link>
             <a href="#processus" className="rn-btn-outline">
               Voir le processus
             </a>
-          </div>
-          <div className="rn-stats">
+          </motion.div>
+
+          {/* Stats avec compteurs animés */}
+          <motion.div
+            className="rn-stats"
+            ref={statsRef}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+          >
             <div className="rn-stat">
-              <span className="rn-stat-num">72h</span>
+              <span className="rn-stat-num">{counts.h}h</span>
               <span className="rn-stat-label">Délai de délivrance</span>
             </div>
             <div className="rn-stat">
-              <span className="rn-stat-num">100%</span>
+              <span className="rn-stat-num">{counts.pct}%</span>
               <span className="rn-stat-label">Traitement en ligne</span>
             </div>
             <div className="rn-stat">
-              <span className="rn-stat-num">3</span>
+              <span className="rn-stat-num">{counts.types}</span>
               <span className="rn-stat-label">Types d&apos;extraits</span>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        {/* Mockup document */}
-        <div className="rn-hero-visual">
-          <div style={{ position: "relative" }}>
+        {/* Document mockup — flotte + apparaît */}
+        <motion.div
+          className="rn-hero-visual"
+          initial={{ opacity: 0, x: 60, rotateY: 15 }}
+          animate={{ opacity: 1, x: 0, rotateY: 0 }}
+          transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            style={{ position: "relative" }}
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          >
             <div className="rn-doc-card">
               <div className="rn-doc-seal">OFFICIEL</div>
               <div className="rn-doc-header">
@@ -602,11 +759,17 @@ export default function LandingClient() {
                 { label: "Lieu de naissance", cls: "medium" },
                 { label: "Nom du père", cls: "" },
                 { label: "Nom de la mère", cls: "medium" },
-              ].map(({ label, cls }) => (
-                <div key={label} className="rn-doc-field">
+              ].map(({ label, cls }, i) => (
+                <motion.div
+                  key={label}
+                  className="rn-doc-field"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 + i * 0.1, duration: 0.4 }}
+                >
                   <span className="rn-doc-label">{label}</span>
                   <div className={`rn-doc-value ${cls}`} />
-                </div>
+                </motion.div>
               ))}
               <div className="rn-doc-qr">
                 {Array.from({ length: 25 }).map((_, i) => (
@@ -618,20 +781,47 @@ export default function LandingClient() {
                 Validé et certifié
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ── FEATURES ─────────────────────────────────────── */}
-      <section className="rn-features" id="fonctionnalites">
-        <p className="rn-section-label">Fonctionnalités</p>
-        <h2 className="rn-section-title">
+      <section
+        className="rn-features"
+        id="fonctionnalites"
+        ref={featuresReveal.ref}
+      >
+        <motion.p
+          className="rn-section-label"
+          variants={fadeIn}
+          initial="hidden"
+          animate={featuresReveal.isInView ? "visible" : "hidden"}
+          transition={{ duration: 0.5 }}
+        >
+          Fonctionnalités
+        </motion.p>
+        <motion.h2
+          className="rn-section-title"
+          variants={fadeUp}
+          initial="hidden"
+          animate={featuresReveal.isInView ? "visible" : "hidden"}
+          transition={{ duration: 0.7, delay: 0.1 }}
+        >
           Tout le processus,
           <br />
           <em>repensé</em> numériquement
-        </h2>
+        </motion.h2>
+
         <div className="rn-features-grid">
-          <div className="rn-feature-list">
+          <motion.div
+            className="rn-feature-list"
+            variants={{
+              ...stagger,
+              visible: { transition: { staggerChildren: 0.08 } },
+            }}
+            initial="hidden"
+            animate={featuresReveal.isInView ? "visible" : "hidden"}
+          >
             {[
               {
                 num: "01",
@@ -654,14 +844,29 @@ export default function LandingClient() {
                 desc: "Tableau de bord citoyen avec suivi de l'état de chaque demande, de la soumission à la délivrance.",
               },
             ].map(({ num, title, desc }) => (
-              <div key={num} className="rn-feature-item">
+              <motion.div
+                key={num}
+                className="rn-feature-item"
+                variants={slideLeft}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="rn-feature-item-num">{num}</div>
                 <div className="rn-feature-item-title">{title}</div>
                 <p className="rn-feature-item-desc">{desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
-          <div className="rn-process-flow" id="processus">
+          </motion.div>
+
+          <motion.div
+            className="rn-process-flow"
+            id="processus"
+            variants={{
+              ...stagger,
+              visible: { transition: { staggerChildren: 0.1 } },
+            }}
+            initial="hidden"
+            animate={featuresReveal.isInView ? "visible" : "hidden"}
+          >
             {[
               {
                 title: "Inscription du citoyen",
@@ -721,28 +926,53 @@ export default function LandingClient() {
                 ),
               },
             ].map(({ title, desc, icon }) => (
-              <div key={title} className="rn-process-step">
+              <motion.div
+                key={title}
+                className="rn-process-step"
+                variants={slideRight}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="rn-step-icon">{icon}</div>
                 <div className="rn-step-info">
                   <div className="rn-step-info-title">{title}</div>
                   <div className="rn-step-info-desc">{desc}</div>
                 </div>
                 <span className="rn-step-arrow">→</span>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── ROLES ─────────────────────────────────────────── */}
-      <section className="rn-roles" id="roles">
-        <p className="rn-section-label">Gestion des accès</p>
-        <h2 className="rn-section-title">
+      <section className="rn-roles" id="roles" ref={rolesReveal.ref}>
+        <motion.p
+          className="rn-section-label"
+          variants={fadeIn}
+          initial="hidden"
+          animate={rolesReveal.isInView ? "visible" : "hidden"}
+          transition={{ duration: 0.5 }}
+        >
+          Gestion des accès
+        </motion.p>
+        <motion.h2
+          className="rn-section-title"
+          variants={fadeUp}
+          initial="hidden"
+          animate={rolesReveal.isInView ? "visible" : "hidden"}
+          transition={{ duration: 0.7, delay: 0.1 }}
+        >
           Trois profils,
           <br />
           <em>une</em> plateforme
-        </h2>
-        <div className="rn-roles-grid">
+        </motion.h2>
+
+        <motion.div
+          className="rn-roles-grid"
+          variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
+          initial="hidden"
+          animate={rolesReveal.isInView ? "visible" : "hidden"}
+        >
           {[
             {
               name: "Citoyen",
@@ -799,16 +1029,27 @@ export default function LandingClient() {
               cta: "Accès administrateur",
             },
           ].map(({ name, desc, perms, icon, href, cta }) => (
-            <div key={name} className="rn-role-card">
+            <motion.div
+              key={name}
+              className="rn-role-card"
+              variants={fadeUp}
+              transition={{ duration: 0.6 }}
+            >
               <div className="rn-role-icon">{icon}</div>
               <div className="rn-role-name">{name}</div>
               <p className="rn-role-desc">{desc}</p>
               <div className="rn-role-perms">
-                {perms.map((p) => (
-                  <div key={p} className="rn-perm">
+                {perms.map((p, i) => (
+                  <motion.div
+                    key={p}
+                    className="rn-perm"
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={rolesReveal.isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ delay: 0.4 + i * 0.07, duration: 0.4 }}
+                  >
                     <span className="rn-perm-dot" />
                     {p}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
               <Link
@@ -835,30 +1076,51 @@ export default function LandingClient() {
               >
                 {cta} →
               </Link>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
-      {/* ── CTA FINALE ───────────────────────────────────── */}
-      <section className="rn-cta">
-        <h2 className="rn-cta-title">
-          Prêt à digitaliser
-          <br />
-          votre <em>état civil</em> ?
-        </h2>
-        <p className="rn-cta-desc">
-          Créez votre compte gratuitement et faites votre première déclaration
-          de naissance en moins de 5 minutes.
-        </p>
-        <div className="rn-cta-actions">
-          <Link href="/sign-up" className="rn-btn-primary">
-            Créer un compte
-          </Link>
-          <Link href="/sign-in" className="rn-btn-outline">
-            J&apos;ai déjà un compte
-          </Link>
-        </div>
+      {/* ── CTA ──────────────────────────────────────────── */}
+      <section className="rn-cta" ref={ctaReveal.ref}>
+        <motion.div
+          variants={{
+            ...stagger,
+            visible: { transition: { staggerChildren: 0.12 } },
+          }}
+          initial="hidden"
+          animate={ctaReveal.isInView ? "visible" : "hidden"}
+        >
+          <motion.h2
+            className="rn-cta-title"
+            variants={fadeUp}
+            transition={{ duration: 0.7 }}
+          >
+            Prêt à digitaliser
+            <br />
+            votre <em>état civil</em> ?
+          </motion.h2>
+          <motion.p
+            className="rn-cta-desc"
+            variants={fadeUp}
+            transition={{ duration: 0.6 }}
+          >
+            Créez votre compte gratuitement et faites votre première déclaration
+            de naissance en moins de 5 minutes.
+          </motion.p>
+          <motion.div
+            className="rn-cta-actions"
+            variants={fadeUp}
+            transition={{ duration: 0.5 }}
+          >
+            <Link href="/sign-up" className="rn-btn-primary">
+              Créer un compte
+            </Link>
+            <Link href="/sign-in" className="rn-btn-outline">
+              J&apos;ai déjà un compte
+            </Link>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ── FOOTER ──────────────────────────────────────── */}
