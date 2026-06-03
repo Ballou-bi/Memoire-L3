@@ -110,6 +110,21 @@ export async function POST(req: Request) {
       },
     });
 
+    // ── Notification email — déclaration soumise ──
+    try {
+      const { sendDeclarationSoumise } = await import("@/lib/emails");
+      await sendDeclarationSoumise({
+        email: user.email,
+        prenom: user.prenom,
+        prenomEnfant: declaration.prenomEnfant,
+        nomEnfant: declaration.nomEnfant,
+        declarationId: declaration.id,
+      });
+    } catch (err) {
+      console.error("[Email] Erreur envoi déclaration soumise:", err);
+      // On ne bloque pas la réponse si l'email échoue
+    }
+
     return Response.json({ declaration }, { status: 201 });
   });
 }

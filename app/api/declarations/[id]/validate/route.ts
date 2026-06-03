@@ -82,6 +82,37 @@ export async function POST(
 
       return { declaration: updated, acte };
     });
+    // ── Notification email selon l'action ──
+    try {
+      const citoyen = result.declaration.citoyen;
+
+      if (action === "VALIDER") {
+        const { sendDeclarationValidee } = await import("@/lib/emails");
+        await sendDeclarationValidee({
+          email: citoyen.email,
+          prenom: citoyen.prenom,
+          prenomEnfant: result.declaration.prenomEnfant,
+          nomEnfant: result.declaration.nomEnfant,
+          numeroActe: result.acte!.numero,
+          declarationId: id,
+        });
+      } else {
+        const { sendDeclarationRejetee } = await import("@/lib/emails");
+        await sendDeclarationRejetee({
+          email: citoyen.email,
+          prenom: citoyen.prenom,
+          prenomEnfant: result.declaration.prenomEnfant,
+          nomEnfant: result.declaration.nomEnfant,
+          motifRejet: motifRejet ?? null,
+          declarationId: id,
+        });
+      }
+    } catch (err) {
+      console.error("[Email] Erreur envoi notification:", err);
+      // On ne bloque pas la réponse si l'email échoue
+    }
+
+    return Response.json(result);
 
     return Response.json(result);
   });
