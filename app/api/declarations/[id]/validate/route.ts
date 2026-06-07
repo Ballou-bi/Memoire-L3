@@ -25,7 +25,10 @@ export async function POST(
       );
     }
 
-    const declaration = await prisma.declaration.findUnique({ where: { id } });
+    const declaration = await prisma.declaration.findUnique({
+      where: { id },
+      include: { acte: true }, // ← inclure l'acte existant éventuel
+    });
 
     if (!declaration) {
       return Response.json(
@@ -44,7 +47,6 @@ export async function POST(
     const { action, motifRejet } = parsed.data;
     const nouveauStatut = action === "VALIDER" ? "VALIDEE" : "REJETEE";
 
-    // Transaction : on met à jour la déclaration ET on crée l'acte si validé
     const result = await prisma.$transaction(async (tx) => {
       const updated = await tx.declaration.update({
         where: { id },
@@ -61,12 +63,17 @@ export async function POST(
 
       let acte = null;
       if (action === "VALIDER") {
-        acte = await tx.acte.create({
-          data: {
-            numero: generateNumeroActe(),
-            declarationId: id,
-          },
-        });
+        // ✅ Si un acte existe déjà (cas Prisma Studio), on le réutilise
+        if (declaration.acte) {
+          acte = declaration.acte;
+        } else {
+          acte = await tx.acte.create({
+            data: {
+              numero: generateNumeroActe(),
+              declarationId: id,
+            },
+          });
+        }
       }
 
       await tx.auditLog.create({
@@ -82,6 +89,7 @@ export async function POST(
 
       return { declaration: updated, acte };
     });
+
     // ── Notification email selon l'action ──
     try {
       const citoyen = result.declaration.citoyen;
@@ -109,10 +117,7 @@ export async function POST(
       }
     } catch (err) {
       console.error("[Email] Erreur envoi notification:", err);
-      // On ne bloque pas la réponse si l'email échoue
     }
-
-    return Response.json(result);
 
     return Response.json(result);
   });

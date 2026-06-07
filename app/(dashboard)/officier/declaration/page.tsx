@@ -52,6 +52,29 @@ export default async function OfficierDeclarationsPage({
     prisma.declaration.count({ where }),
   ]);
 
+  const totalPages = Math.ceil(total / limit);
+
+  const getPages = () => {
+    if (totalPages <= 7)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | "...")[] = [];
+    pages.push(1);
+    if (page > 3) pages.push("...");
+    for (
+      let p = Math.max(2, page - 1);
+      p <= Math.min(totalPages - 1, page + 1);
+      p++
+    ) {
+      pages.push(p);
+    }
+    if (page < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
+
+  const paginationUrl = (p: number) =>
+    `/officier/declaration?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}`;
+
   const FILTRES = [
     { label: "Toutes", value: "" },
     { label: "En attente", value: "EN_ATTENTE" },
@@ -67,7 +90,7 @@ export default async function OfficierDeclarationsPage({
       />
 
       <div className="db-content animate-fade-up">
-        {/* Filtres statut */}
+        {/* Filtres */}
         <div
           style={{
             display: "flex",
@@ -77,7 +100,7 @@ export default async function OfficierDeclarationsPage({
           }}
         >
           {FILTRES.map((f) => (
-            <a
+            <Link
               key={f.value}
               href={`/officier/declaration${f.value ? `?statut=${f.value}` : ""}`}
               style={{
@@ -100,7 +123,7 @@ export default async function OfficierDeclarationsPage({
               }}
             >
               {f.label}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -118,7 +141,22 @@ export default async function OfficierDeclarationsPage({
                 overflow: "hidden",
               }}
             >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  tableLayout: "fixed",
+                }}
+              >
+                <colgroup>
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "11%" }} />
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "7%" }} />
+                </colgroup>
                 <thead>
                   <tr
                     style={{
@@ -147,6 +185,8 @@ export default async function OfficierDeclarationsPage({
                           opacity: 0.7,
                           fontWeight: 500,
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {h}
@@ -169,8 +209,10 @@ export default async function OfficierDeclarationsPage({
                         style={{
                           padding: "0.875rem 1rem",
                           fontWeight: 500,
-                          fontSize: "0.88rem",
+                          fontSize: "0.85rem",
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                           color: "var(--bg-card)",
                         }}
                       >
@@ -182,6 +224,8 @@ export default async function OfficierDeclarationsPage({
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {formatDate(d.dateNaissance)}
@@ -191,10 +235,9 @@ export default async function OfficierDeclarationsPage({
                           padding: "0.875rem 1rem",
                           fontSize: "0.8rem",
                           opacity: 0.65,
-                          maxWidth: "140px",
+                          whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
                           color: "var(--bg-card)",
                         }}
                       >
@@ -206,6 +249,8 @@ export default async function OfficierDeclarationsPage({
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {d.citoyen.prenom} {d.citoyen.nom}
@@ -216,9 +261,13 @@ export default async function OfficierDeclarationsPage({
                       <td
                         style={{
                           padding: "0.875rem 1rem",
-                          fontSize: "0.78rem",
-                          color: "var(--bg-card)",
-                          opacity: 0.7,
+                          fontSize: "0.72rem",
+                          color: "#009a44",
+                          fontWeight: 500,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          fontFamily: "monospace",
                         }}
                       >
                         {d.acte?.numero ?? "—"}
@@ -229,9 +278,9 @@ export default async function OfficierDeclarationsPage({
                             href={`/officier/declaration/${d.id}`}
                             style={{
                               display: "inline-block",
-                              background: "rgba(201,168,76,0.1)",
-                              border: "1px solid rgba(201,168,76,0.25)",
-                              color: "var(--bg-card)",
+                              background: "rgba(247,127,0,0.1)",
+                              border: "1px solid rgba(247,127,0,0.3)",
+                              color: "#f77f00",
                               padding: "0.3rem 0.75rem",
                               borderRadius: "2px",
                               textDecoration: "none",
@@ -252,6 +301,7 @@ export default async function OfficierDeclarationsPage({
                               color: "var(--cream)",
                               textDecoration: "none",
                               opacity: 0.5,
+                              whiteSpace: "nowrap",
                             }}
                           >
                             Voir →
@@ -265,40 +315,110 @@ export default async function OfficierDeclarationsPage({
             </div>
 
             {/* Pagination */}
-            {total > limit && (
+            {totalPages > 1 && (
               <div
                 style={{
                   display: "flex",
-                  gap: "0.5rem",
+                  alignItems: "center",
+                  gap: "0.4rem",
                   justifyContent: "center",
                   marginTop: "1.5rem",
+                  flexWrap: "wrap",
                 }}
               >
-                {Array.from(
-                  { length: Math.ceil(total / limit) },
-                  (_, i) => i + 1,
-                ).map((p) => (
-                  <a
-                    key={p}
-                    href={`/officier/declaration?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}`}
+                {page > 1 && (
+                  <Link
+                    href={paginationUrl(page - 1)}
                     style={{
-                      width: "32px",
+                      padding: "0 0.75rem",
                       height: "32px",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
                       borderRadius: "2px",
                       fontSize: "0.8rem",
                       textDecoration: "none",
-                      background:
-                        p === page ? "var(--gold)" : "rgba(255,255,255,0.04)",
-                      color: p === page ? "var(--navy)" : "var(--cream)",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "var(--cream)",
                       border: "1px solid rgba(201,168,76,0.2)",
                     }}
                   >
-                    {p}
-                  </a>
-                ))}
+                    ← Préc.
+                  </Link>
+                )}
+
+                {getPages().map((p, i) =>
+                  p === "..." ? (
+                    <span
+                      key={`ellipsis-${i}`}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "0.8rem",
+                        color: "rgba(255,255,255,0.3)",
+                      }}
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <Link
+                      key={p}
+                      href={paginationUrl(p as number)}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "2px",
+                        fontSize: "0.8rem",
+                        textDecoration: "none",
+                        background:
+                          p === page ? "#f77f00" : "rgba(255,255,255,0.04)",
+                        color: p === page ? "#ffffff" : "var(--cream)",
+                        border:
+                          p === page
+                            ? "1px solid #f77f00"
+                            : "1px solid rgba(201,168,76,0.2)",
+                        fontWeight: p === page ? 600 : 400,
+                      }}
+                    >
+                      {p}
+                    </Link>
+                  ),
+                )}
+
+                {page < totalPages && (
+                  <Link
+                    href={paginationUrl(page + 1)}
+                    style={{
+                      padding: "0 0.75rem",
+                      height: "32px",
+                      display: "flex",
+                      alignItems: "center",
+                      borderRadius: "2px",
+                      fontSize: "0.8rem",
+                      textDecoration: "none",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "var(--cream)",
+                      border: "1px solid rgba(201,168,76,0.2)",
+                    }}
+                  >
+                    Suiv. →
+                  </Link>
+                )}
+
+                <span
+                  style={{
+                    fontSize: "0.72rem",
+                    color: "rgba(255,255,255,0.3)",
+                    marginLeft: "0.5rem",
+                  }}
+                >
+                  Page {page} / {totalPages}
+                </span>
               </div>
             )}
           </>
