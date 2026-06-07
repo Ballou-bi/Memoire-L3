@@ -1,6 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/dashboard/Header";
 import StatsCard from "@/components/dashboard/StatsCard";
@@ -8,8 +7,6 @@ import QueueRow from "@/components/dashboard/QueueRow";
 import { EmptyState } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
-
-const CUTOFF_DATE_48H_AGO = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
 export const metadata: Metadata = { title: "Espace Officier" };
 
@@ -38,14 +35,6 @@ export default async function OfficierDashboard() {
       take: 10,
     }),
   ]);
-
-  const declarationsUrgentes = await prisma.declaration.count({
-    where: {
-      statut: "EN_ATTENTE",
-
-      createdAt: { lte: CUTOFF_DATE_48H_AGO },
-    },
-  });
 
   return (
     <>
@@ -85,98 +74,6 @@ export default async function OfficierDashboard() {
             sub="refusées"
           />
         </div>
-
-        {declarationsUrgentes > 0 && (
-          <>
-            <style>{`
-      @keyframes urgentPulse {
-        0%, 100% {
-          border-color: rgba(239,68,68,0.25);
-          box-shadow: 0 0 0 0 rgba(239,68,68,0);
-          background: rgba(239,68,68,0.08);
-        }
-        50% {
-          border-color: rgba(239,68,68,0.7);
-          box-shadow: 0 0 0 6px rgba(239,68,68,0.08);
-          background: rgba(239,68,68,0.15);
-        }
-      }
-      @keyframes dotBlink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-      }
-    `}</style>
-
-            <div
-              style={{
-                background: "rgba(239,68,68,0.08)",
-                border: "1px solid rgba(239,68,68,0.25)",
-                borderRadius: "12px",
-                padding: "1rem 1.5rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                marginBottom: "1.5rem",
-                animation: "urgentPulse 2s ease-in-out infinite",
-                cursor: "default",
-              }}
-            >
-              {/* Point clignotant */}
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  background: "#ef4444",
-                  flexShrink: 0,
-                  animation: "dotBlink 1s ease-in-out infinite",
-                  boxShadow: "0 0 6px rgba(239,68,68,0.8)",
-                }}
-              />
-
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: "0.88rem",
-                    fontWeight: 600,
-                    color: "#f87171",
-                  }}
-                >
-                  ⚠️ {declarationsUrgentes} déclaration
-                  {declarationsUrgentes > 1 ? "s" : ""} proche
-                  {declarationsUrgentes > 1 ? "s" : ""} de la deadline
-                </div>
-                <div
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "rgba(255,255,255,0.4)",
-                    marginTop: "0.2rem",
-                  }}
-                >
-                  En attente depuis plus de 48h — deadline légale de 72h
-                </div>
-              </div>
-
-              {/* Bouton accès rapide */}
-              <Link
-                href="/officier/declaration?statut=EN_ATTENTE"
-                style={{
-                  fontSize: "0.75rem",
-                  color: "#f87171",
-                  textDecoration: "none",
-                  border: "1px solid rgba(239,68,68,0.35)",
-                  padding: "0.35rem 0.875rem",
-                  borderRadius: "6px",
-                  flexShrink: 0,
-                  fontWeight: 500,
-                  transition: "background 0.15s",
-                }}
-              >
-                Traiter →
-              </Link>
-            </div>
-          </>
-        )}
 
         {/* ── File d'attente ── */}
         <section>
