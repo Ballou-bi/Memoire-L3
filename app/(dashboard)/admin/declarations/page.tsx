@@ -57,29 +57,6 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
     prisma.declaration.count({ where }),
   ]);
 
-  const totalPages = Math.ceil(total / limit);
-
-  const getPages = () => {
-    if (totalPages <= 7)
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | "...")[] = [];
-    pages.push(1);
-    if (page > 3) pages.push("...");
-    for (
-      let p = Math.max(2, page - 1);
-      p <= Math.min(totalPages - 1, page + 1);
-      p++
-    ) {
-      pages.push(p);
-    }
-    if (page < totalPages - 2) pages.push("...");
-    pages.push(totalPages);
-    return pages;
-  };
-
-  const paginationUrl = (p: number) =>
-    `/admin/declarations?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}${search ? `&search=${search}` : ""}`;
-
   const FILTRES = [
     { label: "Toutes", value: "" },
     { label: "En attente", value: "EN_ATTENTE" },
@@ -102,10 +79,11 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
             gap: "0.75rem",
             marginBottom: "1.5rem",
             flexWrap: "wrap",
+            color: "var( --ci-orange)",
           }}
         >
           {FILTRES.map((f) => (
-            <Link
+            <a
               key={f.value}
               href={`/admin/declarations${f.value ? `?statut=${f.value}` : ""}`}
               style={{
@@ -128,7 +106,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
               }}
             >
               {f.label}
-            </Link>
+            </a>
           ))}
         </div>
 
@@ -143,27 +121,10 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
               style={{
                 border: "1px solid rgba(201,168,76,0.1)",
                 borderRadius: "4px",
-                overflowX: "auto",
+                overflow: "hidden",
               }}
             >
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  tableLayout: "fixed",
-                  minWidth: "700px",
-                }}
-              >
-                <colgroup>
-                  <col style={{ width: "18%" }} />
-                  <col style={{ width: "11%" }} />
-                  <col style={{ width: "12%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "13%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "15%" }} />
-                  <col style={{ width: "7%" }} />
-                </colgroup>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr
                     style={{
@@ -193,8 +154,6 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           opacity: 0.7,
                           fontWeight: 500,
                           whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
                         }}
                       >
                         {h}
@@ -217,11 +176,8 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                         style={{
                           padding: "0.875rem 1rem",
                           fontWeight: 500,
-                          fontSize: "0.85rem",
+                          fontSize: "0.88rem",
                           whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          color: "var(--bg-card)",
                         }}
                       >
                         {d.prenomEnfant} {d.nomEnfant}
@@ -232,8 +188,6 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
                           color: "var(--bg-card)",
                         }}
                       >
@@ -244,9 +198,10 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           padding: "0.875rem 1rem",
                           fontSize: "0.8rem",
                           opacity: 0.65,
-                          whiteSpace: "nowrap",
+                          maxWidth: "120px",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {d.lieuNaissance}
@@ -257,8 +212,6 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
                           color: "var(--bg-card)",
                         }}
                       >
@@ -270,8 +223,6 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.78rem",
                           opacity: 0.5,
                           whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
                         }}
                       >
                         {d.officier
@@ -284,13 +235,9 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                       <td
                         style={{
                           padding: "0.875rem 1rem",
-                          fontSize: "0.72rem",
-                          color: "#009a44",
-                          fontWeight: 500,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          fontFamily: "monospace",
+                          fontSize: "0.78rem",
+                          color: "var(--bg-card)",
+                          opacity: 0.7,
                         }}
                       >
                         {d.acte?.numero ?? "—"}
@@ -300,10 +247,9 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           href={`/officier/declaration/${d.id}`}
                           style={{
                             fontSize: "0.72rem",
-                            color: "#f77f00",
+                            color: "var(--ci-orange)",
                             textDecoration: "none",
-                            fontWeight: 500,
-                            whiteSpace: "nowrap",
+                            opacity: 0.8,
                           }}
                         >
                           Voir →
@@ -316,110 +262,43 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {total > limit && (
               <div
                 style={{
                   display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
+                  gap: "0.5rem",
                   justifyContent: "center",
                   marginTop: "1.5rem",
-                  flexWrap: "wrap",
+                  // color: "var(--ci-orange)",
                 }}
               >
-                {page > 1 && (
-                  <Link
-                    href={paginationUrl(page - 1)}
+                {Array.from(
+                  { length: Math.ceil(total / limit) },
+                  (_, i) => i + 1,
+                ).map((p) => (
+                  <a
+                    key={p}
+                    href={`/admin/declarations?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}`}
                     style={{
-                      padding: "0 0.75rem",
+                      width: "32px",
                       height: "32px",
                       display: "flex",
                       alignItems: "center",
+                      justifyContent: "center",
                       borderRadius: "2px",
                       fontSize: "0.8rem",
                       textDecoration: "none",
-                      background: "rgba(255,255,255,0.04)",
-                      color: "var(--cream)",
+                      background:
+                        p === page
+                          ? "var(-ci-orange)"
+                          : "rgba(255,255,255,0.04)",
+                      color: p === page ? "var(--navy)" : "var(--cream)",
                       border: "1px solid rgba(201,168,76,0.2)",
                     }}
                   >
-                    ← Préc.
-                  </Link>
-                )}
-
-                {getPages().map((p, i) =>
-                  p === "..." ? (
-                    <span
-                      key={`ellipsis-${i}`}
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "0.8rem",
-                        color: "rgba(255,255,255,0.3)",
-                      }}
-                    >
-                      …
-                    </span>
-                  ) : (
-                    <Link
-                      key={p}
-                      href={paginationUrl(p as number)}
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "2px",
-                        fontSize: "0.8rem",
-                        textDecoration: "none",
-                        background:
-                          p === page ? "#f77f00" : "rgba(255,255,255,0.04)",
-                        color: p === page ? "#ffffff" : "var(--cream)",
-                        border:
-                          p === page
-                            ? "1px solid #f77f00"
-                            : "1px solid rgba(201,168,76,0.2)",
-                        fontWeight: p === page ? 600 : 400,
-                      }}
-                    >
-                      {p}
-                    </Link>
-                  ),
-                )}
-
-                {page < totalPages && (
-                  <Link
-                    href={paginationUrl(page + 1)}
-                    style={{
-                      padding: "0 0.75rem",
-                      height: "32px",
-                      display: "flex",
-                      alignItems: "center",
-                      borderRadius: "2px",
-                      fontSize: "0.8rem",
-                      textDecoration: "none",
-                      background: "rgba(255,255,255,0.04)",
-                      color: "var(--cream)",
-                      border: "1px solid rgba(201,168,76,0.2)",
-                    }}
-                  >
-                    Suiv. →
-                  </Link>
-                )}
-
-                <span
-                  style={{
-                    fontSize: "0.72rem",
-                    color: "rgba(255,255,255,0.3)",
-                    marginLeft: "0.5rem",
-                  }}
-                >
-                  Page {page} / {totalPages}
-                </span>
+                    {p}
+                  </a>
+                ))}
               </div>
             )}
           </>
