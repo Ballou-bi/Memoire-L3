@@ -9,8 +9,6 @@ import { EmptyState } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
 
-const CUTOFF_DATE_48H_AGO = new Date(Date.now() - 48 * 60 * 60 * 1000);
-
 export const metadata: Metadata = { title: "Espace Officier" };
 
 export default async function OfficierDashboard() {
@@ -21,7 +19,19 @@ export default async function OfficierDashboard() {
   if (!user || (user.role !== "OFFICIER" && user.role !== "ADMIN"))
     redirect("/citoyen");
 
-  const [enAttente, validees, rejetees, recentes] = await Promise.all([
+  // ✅ Calculé à chaque requête — pas au build
+  const now = new Date();
+  const cutoff48h = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+  const cutoff72h = new Date(now.getTime() - 72 * 60 * 60 * 1000);
+
+  const [
+    enAttente,
+    validees,
+    rejetees,
+    recentes,
+    declarationsUrgentes,
+    declarationLaPlusAncienne,
+  ] = await Promise.all([
     prisma.declaration.count({ where: { statut: "EN_ATTENTE" } }),
     prisma.declaration.count({
       where: { statut: "VALIDEE", officierId: user.id },
@@ -37,15 +47,33 @@ export default async function OfficierDashboard() {
       orderBy: { createdAt: "asc" },
       take: 10,
     }),
+    // Urgentes : entre 48h et 72h
+    prisma.declaration.count({
+      where: {
+        statut: "EN_ATTENTE",
+        createdAt: { lte: cutoff48h, gte: cutoff72h },
+      },
+    }),
+    // La plus ancienne urgente pour redirection directe
+    prisma.declaration.findFirst({
+      where: {
+        statut: "EN_ATTENTE",
+        createdAt: { lte: cutoff48h },
+      },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    }),
   ]);
 
-  const declarationsUrgentes = await prisma.declaration.count({
+  // Deadline dépassée (+72h)
+  const declarationsEnRetard = await prisma.declaration.count({
     where: {
       statut: "EN_ATTENTE",
-
-      createdAt: { lte: CUTOFF_DATE_48H_AGO },
+      createdAt: { lte: cutoff72h },
     },
   });
+
+  const totalUrgentes = declarationsUrgentes + declarationsEnRetard;
 
   return (
     <>
@@ -86,26 +114,27 @@ export default async function OfficierDashboard() {
           />
         </div>
 
-        {declarationsUrgentes > 0 && (
+        {/* ── Badge urgent clignotant ── */}
+        {totalUrgentes > 0 && (
           <>
             <style>{`
-      @keyframes urgentPulse {
-        0%, 100% {
-          border-color: rgba(239,68,68,0.25);
-          box-shadow: 0 0 0 0 rgba(239,68,68,0);
-          background: rgba(239,68,68,0.08);
-        }
-        50% {
-          border-color: rgba(239,68,68,0.7);
-          box-shadow: 0 0 0 6px rgba(239,68,68,0.08);
-          background: rgba(239,68,68,0.15);
-        }
-      }
-      @keyframes dotBlink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-      }
-    `}</style>
+              @keyframes urgentPulse {
+                0%, 100% {
+                  border-color: rgba(239,68,68,0.25);
+                  box-shadow: 0 0 0 0 rgba(239,68,68,0);
+                  background: rgba(239,68,68,0.08);
+                }
+                50% {
+                  border-color: rgba(239,68,68,0.7);
+                  box-shadow: 0 0 0 6px rgba(239,68,68,0.08);
+                  background: rgba(239,68,68,0.15);
+                }
+              }
+              @keyframes dotBlink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+              }
+            `}</style>
 
             <div
               style={{
@@ -118,7 +147,6 @@ export default async function OfficierDashboard() {
                 gap: "0.75rem",
                 marginBottom: "1.5rem",
                 animation: "urgentPulse 2s ease-in-out infinite",
-                cursor: "default",
               }}
             >
               {/* Point clignotant */}
@@ -142,9 +170,8 @@ export default async function OfficierDashboard() {
                     color: "#f87171",
                   }}
                 >
-                  ⚠️ {declarationsUrgentes} déclaration
-                  {declarationsUrgentes > 1 ? "s" : ""} proche
-                  {declarationsUrgentes > 1 ? "s" : ""} de la deadline
+                  ⚠️ {totalUrgentes} déclaration{totalUrgentes > 1 ? "s" : ""}{" "}
+                  nécessite{totalUrgentes > 1 ? "nt" : ""} une attention urgente
                 </div>
                 <div
                   style={{
@@ -153,13 +180,31 @@ export default async function OfficierDashboard() {
                     marginTop: "0.2rem",
                   }}
                 >
-                  En attente depuis plus de 48h — deadline légale de 72h
+                  {declarationsEnRetard > 0 && (
+                    <span style={{ color: "#ef4444", fontWeight: 600 }}>
+                      {declarationsEnRetard} deadline dépassée (+72h)
+                    </span>
+                  )}
+                  {declarationsEnRetard > 0 &&
+                    declarationsUrgentes > 0 &&
+                    " · "}
+                  {declarationsUrgentes > 0 && (
+                    <span>
+                      {declarationsUrgentes} proche
+                      {declarationsUrgentes > 1 ? "s" : ""} de la deadline
+                      (48–72h)
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Bouton accès rapide */}
+              {/* Bouton — pointe vers la déclaration la plus ancienne */}
               <Link
-                href="/officier/declaration?statut=EN_ATTENTE"
+                href={
+                  declarationLaPlusAncienne
+                    ? `/officier/declaration/${declarationLaPlusAncienne.id}`
+                    : "/officier/declaration?statut=EN_ATTENTE"
+                }
                 style={{
                   fontSize: "0.75rem",
                   color: "#f87171",
@@ -169,7 +214,6 @@ export default async function OfficierDashboard() {
                   borderRadius: "6px",
                   flexShrink: 0,
                   fontWeight: 500,
-                  transition: "background 0.15s",
                 }}
               >
                 Traiter →
@@ -251,7 +295,6 @@ export default async function OfficierDashboard() {
                 overflow: "hidden",
               }}
             >
-              {/* Header tableau */}
               <div
                 style={{
                   display: "grid",
@@ -285,7 +328,6 @@ export default async function OfficierDashboard() {
                 ))}
               </div>
 
-              {/* Lignes — composant client pour le hover */}
               {recentes.map((d, i) => (
                 <QueueRow
                   key={d.id}

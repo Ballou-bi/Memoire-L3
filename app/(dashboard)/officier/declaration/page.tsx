@@ -87,7 +87,7 @@ export default async function OfficierDeclarationsPage({
       <style>{`
         .decl-table { display: block; }
         .decl-cards { display: none; }
-        @media (max-width: 768px) {
+        @media (max-width: 1100px) {
           .decl-table { display: none; }
           .decl-cards { display: flex; flex-direction: column; gap: 0.75rem; }
         }
@@ -160,13 +160,13 @@ export default async function OfficierDeclarationsPage({
                 }}
               >
                 <colgroup>
-                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "18%" }} />
                   <col style={{ width: "12%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "18%" }} />
-                  <col style={{ width: "11%" }} />
-                  <col style={{ width: "18%" }} />
-                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "17%" }} />
+                  <col style={{ width: "12%" }} />
                 </colgroup>
                 <thead>
                   <tr
@@ -188,7 +188,7 @@ export default async function OfficierDeclarationsPage({
                         key={h}
                         style={{
                           padding: "0.75rem 1rem",
-                          textAlign: "left",
+                          textAlign: h === "Action" ? "center" : "left",
                           fontSize: "0.62rem",
                           textTransform: "uppercase",
                           letterSpacing: "0.1em",
@@ -283,7 +283,12 @@ export default async function OfficierDeclarationsPage({
                       >
                         {d.acte?.numero ?? "—"}
                       </td>
-                      <td style={{ padding: "0.875rem 1rem" }}>
+                      <td
+                        style={{
+                          padding: "0.875rem 1rem",
+                          textAlign: "center",
+                        }}
+                      >
                         {d.statut === "EN_ATTENTE" ? (
                           <Link
                             href={`/officier/declaration/${d.id}`}
@@ -309,7 +314,7 @@ export default async function OfficierDeclarationsPage({
                             href={`/officier/declaration/${d.id}`}
                             style={{
                               fontSize: "0.75rem",
-                              color: "var(--ci-orange) ",
+                              color: "#f77f00",
                               textDecoration: "none",
                               opacity: 0.5,
                               whiteSpace: "nowrap",
@@ -372,6 +377,7 @@ export default async function OfficierDeclarationsPage({
                         gap: "1rem",
                         fontSize: "0.78rem",
                         color: "rgba(255,255,255,0.45)",
+                        flexWrap: "wrap",
                       }}
                     >
                       <span>📅 {formatDate(d.dateNaissance)}</span>
@@ -407,7 +413,7 @@ export default async function OfficierDeclarationsPage({
                       >
                         {d.acte?.numero ?? "Pas encore d'acte"}
                       </span>
-                      {d.statut === "EN_ATTENTE" && (
+                      {d.statut === "EN_ATTENTE" ? (
                         <span
                           style={{
                             background: "rgba(247,127,0,0.12)",
@@ -421,12 +427,12 @@ export default async function OfficierDeclarationsPage({
                         >
                           Traiter →
                         </span>
-                      )}
-                      {d.statut !== "EN_ATTENTE" && (
+                      ) : (
                         <span
                           style={{
                             fontSize: "0.72rem",
-                            color: "var(--ci-orange) ",
+                            color: "#f77f00",
+                            opacity: 0.5,
                           }}
                         >
                           Voir →
@@ -469,6 +475,7 @@ export default async function OfficierDeclarationsPage({
                     ← Préc.
                   </Link>
                 )}
+
                 {getPages().map((p, i) =>
                   p === "..." ? (
                     <span
@@ -512,6 +519,7 @@ export default async function OfficierDeclarationsPage({
                     </Link>
                   ),
                 )}
+
                 {page < totalPages && (
                   <Link
                     href={paginationUrl(page + 1)}
@@ -531,6 +539,7 @@ export default async function OfficierDeclarationsPage({
                     Suiv. →
                   </Link>
                 )}
+
                 <span
                   style={{
                     fontSize: "0.72rem",

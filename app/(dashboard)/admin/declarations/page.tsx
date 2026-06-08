@@ -92,7 +92,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
       <style>{`
         .decl-table { display: block; }
         .decl-cards { display: none; }
-        @media (max-width: 768px) {
+        @media (max-width: 1000px) {
           .decl-table { display: none; }
           .decl-cards { display: flex; flex-direction: column; gap: 0.75rem; }
         }
