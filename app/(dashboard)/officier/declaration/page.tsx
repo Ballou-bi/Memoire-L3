@@ -84,6 +84,15 @@ export default async function OfficierDeclarationsPage({
 
   return (
     <>
+      <style>{`
+        .decl-table { display: block; }
+        .decl-cards { display: none; }
+        @media (max-width: 768px) {
+          .decl-table { display: none; }
+          .decl-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+        }
+      `}</style>
+
       <Header
         title="Déclarations"
         subtitle={`${total} déclaration${total > 1 ? "s" : ""} au total`}
@@ -134,7 +143,9 @@ export default async function OfficierDeclarationsPage({
           />
         ) : (
           <>
+            {/* ── TABLE DESKTOP ── */}
             <div
+              className="decl-table"
               style={{
                 border: "1px solid rgba(201,168,76,0.1)",
                 borderRadius: "4px",
@@ -298,7 +309,7 @@ export default async function OfficierDeclarationsPage({
                             href={`/officier/declaration/${d.id}`}
                             style={{
                               fontSize: "0.75rem",
-                              color: "var(--cream)",
+                              color: "var(--ci-orange) ",
                               textDecoration: "none",
                               opacity: 0.5,
                               whiteSpace: "nowrap",
@@ -312,6 +323,119 @@ export default async function OfficierDeclarationsPage({
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* ── CARDS MOBILE ── */}
+            <div className="decl-cards">
+              {declarations.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/officier/declaration/${d.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.02)",
+                      border: "1px solid rgba(201,168,76,0.12)",
+                      borderRadius: "12px",
+                      padding: "1rem 1.25rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.6rem",
+                    }}
+                  >
+                    {/* Ligne 1 — nom enfant + statut */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "0.75rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          fontSize: "0.92rem",
+                          color: "white",
+                        }}
+                      >
+                        {d.prenomEnfant} {d.nomEnfant}
+                      </span>
+                      <StatusBadge statut={d.statut} />
+                    </div>
+
+                    {/* Ligne 2 — date + lieu */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "1rem",
+                        fontSize: "0.78rem",
+                        color: "rgba(255,255,255,0.45)",
+                      }}
+                    >
+                      <span>📅 {formatDate(d.dateNaissance)}</span>
+                      <span>📍 {d.lieuNaissance}</span>
+                    </div>
+
+                    {/* Ligne 3 — citoyen */}
+                    <div
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "rgba(255,255,255,0.45)",
+                      }}
+                    >
+                      👤 {d.citoyen.prenom} {d.citoyen.nom}
+                    </div>
+
+                    {/* Ligne 4 — acte + bouton */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "0.72rem",
+                          color: "#009a44",
+                          fontFamily: "monospace",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {d.acte?.numero ?? "Pas encore d'acte"}
+                      </span>
+                      {d.statut === "EN_ATTENTE" && (
+                        <span
+                          style={{
+                            background: "rgba(247,127,0,0.12)",
+                            border: "1px solid rgba(247,127,0,0.35)",
+                            color: "#f77f00",
+                            padding: "0.3rem 0.875rem",
+                            borderRadius: "6px",
+                            fontSize: "0.72rem",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Traiter →
+                        </span>
+                      )}
+                      {d.statut !== "EN_ATTENTE" && (
+                        <span
+                          style={{
+                            fontSize: "0.72rem",
+                            color: "var(--ci-orange) ",
+                          }}
+                        >
+                          Voir →
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
 
             {/* Pagination */}
@@ -345,7 +469,6 @@ export default async function OfficierDeclarationsPage({
                     ← Préc.
                   </Link>
                 )}
-
                 {getPages().map((p, i) =>
                   p === "..." ? (
                     <span
@@ -389,7 +512,6 @@ export default async function OfficierDeclarationsPage({
                     </Link>
                   ),
                 )}
-
                 {page < totalPages && (
                   <Link
                     href={paginationUrl(page + 1)}
@@ -409,7 +531,6 @@ export default async function OfficierDeclarationsPage({
                     Suiv. →
                   </Link>
                 )}
-
                 <span
                   style={{
                     fontSize: "0.72rem",

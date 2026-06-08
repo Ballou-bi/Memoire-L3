@@ -57,6 +57,29 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
     prisma.declaration.count({ where }),
   ]);
 
+  const totalPages = Math.ceil(total / limit);
+
+  const getPages = () => {
+    if (totalPages <= 7)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | "...")[] = [];
+    pages.push(1);
+    if (page > 3) pages.push("...");
+    for (
+      let p = Math.max(2, page - 1);
+      p <= Math.min(totalPages - 1, page + 1);
+      p++
+    ) {
+      pages.push(p);
+    }
+    if (page < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
+
+  const paginationUrl = (p: number) =>
+    `/admin/declarations?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}${search ? `&search=${search}` : ""}`;
+
   const FILTRES = [
     { label: "Toutes", value: "" },
     { label: "En attente", value: "EN_ATTENTE" },
@@ -66,6 +89,15 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
 
   return (
     <>
+      <style>{`
+        .decl-table { display: block; }
+        .decl-cards { display: none; }
+        @media (max-width: 768px) {
+          .decl-table { display: none; }
+          .decl-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+        }
+      `}</style>
+
       <Header
         title="Toutes les déclarations"
         subtitle={`${total} déclaration${total > 1 ? "s" : ""} au total`}
@@ -79,11 +111,10 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
             gap: "0.75rem",
             marginBottom: "1.5rem",
             flexWrap: "wrap",
-            color: "var( --ci-orange)",
           }}
         >
           {FILTRES.map((f) => (
-            <a
+            <Link
               key={f.value}
               href={`/admin/declarations${f.value ? `?statut=${f.value}` : ""}`}
               style={{
@@ -106,7 +137,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
               }}
             >
               {f.label}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -117,14 +148,32 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
           />
         ) : (
           <>
+            {/* ── TABLE DESKTOP ── */}
             <div
+              className="decl-table"
               style={{
                 border: "1px solid rgba(201,168,76,0.1)",
                 borderRadius: "4px",
                 overflow: "hidden",
               }}
             >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  tableLayout: "fixed",
+                }}
+              >
+                <colgroup>
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "11%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "15%" }} />
+                  <col style={{ width: "7%" }} />
+                </colgroup>
                 <thead>
                   <tr
                     style={{
@@ -154,6 +203,8 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           opacity: 0.7,
                           fontWeight: 500,
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {h}
@@ -176,8 +227,11 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                         style={{
                           padding: "0.875rem 1rem",
                           fontWeight: 500,
-                          fontSize: "0.88rem",
+                          fontSize: "0.85rem",
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          color: "var(--bg-card)",
                         }}
                       >
                         {d.prenomEnfant} {d.nomEnfant}
@@ -188,6 +242,8 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                           color: "var(--bg-card)",
                         }}
                       >
@@ -198,10 +254,9 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           padding: "0.875rem 1rem",
                           fontSize: "0.8rem",
                           opacity: 0.65,
-                          maxWidth: "120px",
+                          whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
                         }}
                       >
                         {d.lieuNaissance}
@@ -212,6 +267,8 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.8rem",
                           opacity: 0.65,
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                           color: "var(--bg-card)",
                         }}
                       >
@@ -223,6 +280,8 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           fontSize: "0.78rem",
                           opacity: 0.5,
                           whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {d.officier
@@ -235,9 +294,13 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                       <td
                         style={{
                           padding: "0.875rem 1rem",
-                          fontSize: "0.78rem",
-                          color: "var(--bg-card)",
-                          opacity: 0.7,
+                          fontSize: "0.72rem",
+                          color: "#009a44",
+                          fontWeight: 500,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          fontFamily: "monospace",
                         }}
                       >
                         {d.acte?.numero ?? "—"}
@@ -247,9 +310,10 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                           href={`/officier/declaration/${d.id}`}
                           style={{
                             fontSize: "0.72rem",
-                            color: "var(--ci-orange)",
+                            color: "#f77f00",
                             textDecoration: "none",
-                            opacity: 0.8,
+                            fontWeight: 500,
+                            whiteSpace: "nowrap",
                           }}
                         >
                           Voir →
@@ -261,44 +325,219 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
               </table>
             </div>
 
+            {/* ── CARDS MOBILE ── */}
+            <div className="decl-cards">
+              {declarations.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/officier/declaration/${d.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.02)",
+                      border: "1px solid rgba(201,168,76,0.12)",
+                      borderRadius: "12px",
+                      padding: "1rem 1.25rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.6rem",
+                    }}
+                  >
+                    {/* Ligne 1 — nom enfant + statut */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "0.75rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          fontSize: "0.92rem",
+                          color: "white",
+                        }}
+                      >
+                        {d.prenomEnfant} {d.nomEnfant}
+                      </span>
+                      <StatusBadge statut={d.statut} />
+                    </div>
+
+                    {/* Ligne 2 — date + lieu */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "1rem",
+                        fontSize: "0.78rem",
+                        color: "rgba(255,255,255,0.45)",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span>📅 {formatDate(d.dateNaissance)}</span>
+                      <span>📍 {d.lieuNaissance}</span>
+                    </div>
+
+                    {/* Ligne 3 — citoyen + officier */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "1rem",
+                        fontSize: "0.78rem",
+                        color: "rgba(255,255,255,0.45)",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span>
+                        👤 {d.citoyen.prenom} {d.citoyen.nom}
+                      </span>
+                      {d.officier && (
+                        <span>
+                          ⚖️ {d.officier.prenom} {d.officier.nom}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Ligne 4 — acte + bouton */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "0.72rem",
+                          color: "#009a44",
+                          fontFamily: "monospace",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {d.acte?.numero ?? "Pas encore d'acte"}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.72rem",
+                          color: "#f77f00",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Voir →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
             {/* Pagination */}
-            {total > limit && (
+            {totalPages > 1 && (
               <div
                 style={{
                   display: "flex",
-                  gap: "0.5rem",
+                  alignItems: "center",
+                  gap: "0.4rem",
                   justifyContent: "center",
                   marginTop: "1.5rem",
-                  // color: "var(--ci-orange)",
+                  flexWrap: "wrap",
                 }}
               >
-                {Array.from(
-                  { length: Math.ceil(total / limit) },
-                  (_, i) => i + 1,
-                ).map((p) => (
-                  <a
-                    key={p}
-                    href={`/admin/declarations?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}`}
+                {page > 1 && (
+                  <Link
+                    href={paginationUrl(page - 1)}
                     style={{
-                      width: "32px",
+                      padding: "0 0.75rem",
                       height: "32px",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
                       borderRadius: "2px",
                       fontSize: "0.8rem",
                       textDecoration: "none",
-                      background:
-                        p === page
-                          ? "var(-ci-orange)"
-                          : "rgba(255,255,255,0.04)",
-                      color: p === page ? "var(--navy)" : "var(--cream)",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "var(--cream)",
                       border: "1px solid rgba(201,168,76,0.2)",
                     }}
                   >
-                    {p}
-                  </a>
-                ))}
+                    ← Préc.
+                  </Link>
+                )}
+
+                {getPages().map((p, i) =>
+                  p === "..." ? (
+                    <span
+                      key={`ellipsis-${i}`}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "0.8rem",
+                        color: "rgba(255,255,255,0.3)",
+                      }}
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <Link
+                      key={p}
+                      href={paginationUrl(p as number)}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "2px",
+                        fontSize: "0.8rem",
+                        textDecoration: "none",
+                        background:
+                          p === page ? "#f77f00" : "rgba(255,255,255,0.04)",
+                        color: p === page ? "#ffffff" : "var(--cream)",
+                        border:
+                          p === page
+                            ? "1px solid #f77f00"
+                            : "1px solid rgba(201,168,76,0.2)",
+                        fontWeight: p === page ? 600 : 400,
+                      }}
+                    >
+                      {p}
+                    </Link>
+                  ),
+                )}
+
+                {page < totalPages && (
+                  <Link
+                    href={paginationUrl(page + 1)}
+                    style={{
+                      padding: "0 0.75rem",
+                      height: "32px",
+                      display: "flex",
+                      alignItems: "center",
+                      borderRadius: "2px",
+                      fontSize: "0.8rem",
+                      textDecoration: "none",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "var(--cream)",
+                      border: "1px solid rgba(201,168,76,0.2)",
+                    }}
+                  >
+                    Suiv. →
+                  </Link>
+                )}
+
+                <span
+                  style={{
+                    fontSize: "0.72rem",
+                    color: "rgba(255,255,255,0.3)",
+                    marginLeft: "0.5rem",
+                  }}
+                >
+                  Page {page} / {totalPages}
+                </span>
               </div>
             )}
           </>
