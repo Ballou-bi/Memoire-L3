@@ -49,7 +49,11 @@ export async function generatePDF(extrait: ExtraitComplet): Promise<Buffer> {
     ReactPDF;
   const React = await import("react");
 
-  const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verifier/${extrait.id}`;
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ??
+    "https://memoire-l3-seven.vercel.app";
+
+  const verifyUrl = `${baseUrl}/verifier/${extrait.id}`;
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
     width: 120,
     margin: 1,
