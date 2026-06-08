@@ -16,17 +16,14 @@ export default async function OfficierStatsPage() {
   if (!user) redirect("/sign-in");
   if (user.role === "CITOYEN") redirect("/citoyen");
 
-  // Stats globales
   const [
     totalDeclarations,
     enAttente,
     validees,
     rejetees,
     totalExtraits,
-    // Stats personnelles de cet officier
     valideesParMoi,
     rejeteesParMoi,
-    // Dernières actions de cet officier
     dernieresActions,
   ] = await Promise.all([
     prisma.declaration.count(),
@@ -66,7 +63,7 @@ export default async function OfficierStatsPage() {
       />
 
       <div className="db-content animate-fade-up">
-        {/* Stats globales */}
+        {/* ── Vue globale ── */}
         <div style={{ marginBottom: "0.75rem" }}>
           <span
             style={{
@@ -80,13 +77,15 @@ export default async function OfficierStatsPage() {
             Vue globale
           </span>
         </div>
+
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
             gap: "1rem",
-            marginBottom: "2.5rem",
+            marginBottom: "1rem",
           }}
+          className="officier-stats-grid"
         >
           <StatsCard
             label="Total déclarations"
@@ -115,6 +114,7 @@ export default async function OfficierStatsPage() {
             gap: "1rem",
             marginBottom: "2.5rem",
           }}
+          className="officier-stats-grid"
         >
           <StatsCard
             label="Extraits délivrés"
@@ -129,7 +129,7 @@ export default async function OfficierStatsPage() {
           />
         </div>
 
-        {/* Stats personnelles */}
+        {/* ── Mon activité ── */}
         <div style={{ marginBottom: "0.75rem" }}>
           <span
             style={{
@@ -143,6 +143,7 @@ export default async function OfficierStatsPage() {
             Mon activité
           </span>
         </div>
+
         <div
           style={{
             display: "grid",
@@ -150,6 +151,7 @@ export default async function OfficierStatsPage() {
             gap: "1rem",
             marginBottom: "2.5rem",
           }}
+          className="officier-stats-grid"
         >
           <StatsCard
             label="Validées par moi"
@@ -169,7 +171,7 @@ export default async function OfficierStatsPage() {
           />
         </div>
 
-        {/* Dernières actions */}
+        {/* ── Dernières actions ── */}
         {dernieresActions.length > 0 && (
           <section>
             <h2
@@ -186,10 +188,17 @@ export default async function OfficierStatsPage() {
               style={{
                 border: "1px solid rgba(201,168,76,0.1)",
                 borderRadius: "4px",
-                overflow: "hidden",
+                overflowX: "auto",
               }}
             >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  tableLayout: "auto",
+                  minWidth: "500px",
+                }}
+              >
                 <thead>
                   <tr
                     style={{
@@ -210,6 +219,7 @@ export default async function OfficierStatsPage() {
                           color: "var(--bg-card)",
                           opacity: 0.7,
                           fontWeight: 500,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {h}
@@ -233,6 +243,7 @@ export default async function OfficierStatsPage() {
                           padding: "0.875rem 1rem",
                           fontWeight: 500,
                           fontSize: "0.88rem",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {d.prenomEnfant} {d.nomEnfant}
@@ -242,11 +253,17 @@ export default async function OfficierStatsPage() {
                           padding: "0.875rem 1rem",
                           fontSize: "0.82rem",
                           opacity: 0.65,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {d.citoyen.prenom} {d.citoyen.nom}
                       </td>
-                      <td style={{ padding: "0.875rem 1rem" }}>
+                      <td
+                        style={{
+                          padding: "0.875rem 1rem",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
                         <span
                           style={{
                             fontSize: "0.72rem",
@@ -270,6 +287,7 @@ export default async function OfficierStatsPage() {
                           padding: "0.875rem 1rem",
                           fontSize: "0.78rem",
                           opacity: 0.5,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {formatDate(d.updatedAt)}
@@ -297,6 +315,14 @@ export default async function OfficierStatsPage() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .officier-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+      `}</style>
     </>
   );
 }

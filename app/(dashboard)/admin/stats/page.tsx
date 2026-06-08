@@ -36,7 +36,6 @@ export default async function AdminStatsPage() {
     prisma.user.count({ where: { role: "CITOYEN" } }),
     prisma.user.count({ where: { role: "OFFICIER" } }),
     prisma.user.count({ where: { role: "ADMIN" } }),
-    // 8 dernières déclarations
     prisma.declaration.findMany({
       include: {
         citoyen: { select: { nom: true, prenom: true } },
@@ -45,16 +44,13 @@ export default async function AdminStatsPage() {
       orderBy: { createdAt: "desc" },
       take: 8,
     }),
-    // Performance par officier
     prisma.user.findMany({
       where: { role: "OFFICIER" },
       select: {
         id: true,
         nom: true,
         prenom: true,
-        _count: {
-          select: { validations: true },
-        },
+        _count: { select: { validations: true } },
       },
     }),
   ]);
@@ -77,7 +73,7 @@ export default async function AdminStatsPage() {
       />
 
       <div className="db-content animate-fade-up">
-        {/* Déclarations */}
+        {/* ── Déclarations ── */}
         <div style={{ marginBottom: "0.75rem" }}>
           <span
             style={{
@@ -98,6 +94,7 @@ export default async function AdminStatsPage() {
             gap: "1rem",
             marginBottom: "2.5rem",
           }}
+          className="admin-stats-grid"
         >
           <StatsCard label="Total" value={totalDeclarations} color="orange" />
           <StatsCard
@@ -120,7 +117,7 @@ export default async function AdminStatsPage() {
           />
         </div>
 
-        {/* Utilisateurs & extraits */}
+        {/* ── Utilisateurs & extraits ── */}
         <div style={{ marginBottom: "0.75rem" }}>
           <span
             style={{
@@ -141,6 +138,7 @@ export default async function AdminStatsPage() {
             gap: "1rem",
             marginBottom: "2.5rem",
           }}
+          className="admin-stats-grid"
         >
           <StatsCard
             label="Citoyens inscrits"
@@ -164,12 +162,14 @@ export default async function AdminStatsPage() {
           />
         </div>
 
+        {/* ── Tableaux ── */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: "1.5rem",
           }}
+          className="admin-bottom-grid"
         >
           {/* Dernières déclarations */}
           <section>
@@ -179,7 +179,6 @@ export default async function AdminStatsPage() {
                 fontSize: "1.15rem",
                 fontWeight: 600,
                 marginBottom: "1rem",
-                // color: "var(--bg-card)",
               }}
             >
               Dernières déclarations
@@ -322,7 +321,7 @@ export default async function AdminStatsPage() {
                         style={{
                           fontSize: "1.1rem",
                           fontWeight: 600,
-                          color: "var(-ci-orange)",
+                          color: "var(--ci-orange)",
                           fontFamily: "'Cormorant Garamond', serif",
                         }}
                       >
@@ -346,6 +345,17 @@ export default async function AdminStatsPage() {
           </section>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          .admin-bottom-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </>
   );
 }

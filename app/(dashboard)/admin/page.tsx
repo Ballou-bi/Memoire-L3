@@ -15,11 +15,8 @@ export default async function AdminDashboard() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  // Lit le rôle depuis la DB — source de vérité
   const user = await prisma.user.findUnique({ where: { clerkId: userId } });
   if (!user) redirect("/sign-in");
-
-  // Redirection si rôle incorrect selon la DB
   if (user.role !== "ADMIN") redirect(`/${user.role.toLowerCase()}`);
 
   const [
@@ -85,6 +82,7 @@ export default async function AdminDashboard() {
       />
 
       <div className="db-content animate-fade-up">
+        {/* ── Stats — 7 cartes en 1 seul grid ── */}
         <div
           style={{
             display: "grid",
@@ -92,6 +90,7 @@ export default async function AdminDashboard() {
             gap: "1rem",
             marginBottom: "2.5rem",
           }}
+          className="admin-stats-grid"
         >
           <StatsCard
             label="Total déclarations"
@@ -111,16 +110,6 @@ export default async function AdminDashboard() {
             sub={`${totalDeclarations > 0 ? Math.round((validees / totalDeclarations) * 100) : 0}%`}
           />
           <StatsCard label="Rejetées" value={rejetees} color="dark" />
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "1rem",
-            marginBottom: "2.5rem",
-          }}
-        >
           <StatsCard
             label="Extraits délivrés"
             value={totalExtraits}
@@ -138,6 +127,7 @@ export default async function AdminDashboard() {
           />
         </div>
 
+        {/* ── Quick cards ── */}
         <div
           style={{
             display: "grid",
@@ -145,18 +135,21 @@ export default async function AdminDashboard() {
             gap: "1rem",
             marginBottom: "2.5rem",
           }}
+          className="admin-quick-grid"
         >
           {QUICK_CARDS.map((card) => (
             <AdminQuickCard key={card.href} {...card} />
           ))}
         </div>
 
+        {/* ── Déclarations + Utilisateurs ── */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: "1.5rem",
           }}
+          className="admin-bottom-grid"
         >
           <section>
             <div
@@ -240,7 +233,6 @@ export default async function AdminDashboard() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 marginBottom: "1rem",
-                // color: "var(--bg-card)",
               }}
             >
               <h2
@@ -334,6 +326,20 @@ export default async function AdminDashboard() {
           </section>
         </div>
       </div>
+
+      <style>{`
+  @media (max-width: 768px) {
+    .admin-stats-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .admin-quick-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .admin-bottom-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+`}</style>
     </>
   );
 }
