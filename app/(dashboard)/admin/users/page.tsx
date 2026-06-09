@@ -96,11 +96,9 @@ export default async function AdminUsersPage({ searchParams }: Props) {
         ? "rgba(247,127,0,0.3)"
         : "rgba(0,154,68,0.3)";
 
-  // ✅ Corrigé — fallback si nom vide ou undefined
   const initiales = (prenom: string, nom: string) =>
     `${prenom?.[0] ?? ""}${nom?.[0] ?? ""}`.toUpperCase() || "?";
 
-  // ✅ Corrigé — fallback si charCodeAt retourne NaN
   const avatarColor = (nom: string) => {
     const colors = [
       { bg: "rgba(247,127,0,0.2)", text: "#f77f00" },
@@ -152,7 +150,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                 background:
                   filterRole === r || (!filterRole && r === "")
                     ? "var(--bg-card)"
-                    : "rgba(255,255,255,0.04)",
+                    : "var(--ci-green)",
                 color:
                   filterRole === r || (!filterRole && r === "")
                     ? "var(--navy)"
@@ -172,14 +170,15 @@ export default async function AdminUsersPage({ searchParams }: Props) {
           style={{
             border: "1px solid rgba(201,168,76,0.1)",
             borderRadius: "4px",
-            overflow: "hidden",
+            overflow: "visible",
           }}
         >
           <table
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              tableLayout: "fixed",
+              tableLayout: "auto",
+              overflow: "visible",
             }}
           >
             <colgroup>
@@ -226,7 +225,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody style={{ overflow: "visible" }}>
               {users.map((u, i) => (
                 <tr
                   key={u.id}
@@ -235,6 +234,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       i < users.length - 1
                         ? "1px solid rgba(201,168,76,0.06)"
                         : "none",
+                    overflow: "visible",
                   }}
                 >
                   <td
@@ -308,7 +308,13 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   >
                     {formatDate(u.createdAt)}
                   </td>
-                  <td style={{ padding: "0.875rem 1rem" }}>
+                  <td
+                    style={{
+                      padding: "0.875rem 1rem",
+                      overflow: "visible",
+                      position: "relative",
+                    }}
+                  >
                     {u.id !== user.id ? (
                       <RoleChanger
                         userId={u.id}
@@ -337,10 +343,9 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   background: "rgba(255,255,255,0.02)",
                   border: `1px solid ${roleBorder(u.role)}`,
                   borderRadius: "14px",
-                  overflow: "hidden",
+                  overflow: "visible",
                 }}
               >
-                {/* Bande couleur haut selon rôle */}
                 <div
                   style={{
                     height: "4px",
@@ -426,7 +431,6 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       </div>
                     </div>
 
-                    {/* Badge rôle */}
                     <span
                       style={{
                         fontSize: "0.65rem",
@@ -543,6 +547,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       <RoleChanger
                         userId={u.id}
                         currentRole={u.role as "CITOYEN" | "OFFICIER" | "ADMIN"}
+                        inline={true}
                       />
                     </div>
                   )}
