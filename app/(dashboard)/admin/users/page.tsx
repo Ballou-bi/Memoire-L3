@@ -82,24 +82,42 @@ export default async function AdminUsersPage({ searchParams }: Props) {
     `/admin/users?page=${p}${filterRole ? `&role=${filterRole}` : ""}${search ? `&search=${search}` : ""}`;
 
   const roleColor = (r: string) =>
-    r === "ADMIN"
-      ? "#f87171"
-      : r === "OFFICIER"
-        ? "var(--gold)"
-        : "rgba(248,244,237,0.55)";
+    r === "ADMIN" ? "#f87171" : r === "OFFICIER" ? "#f77f00" : "#009a44";
   const roleBg = (r: string) =>
     r === "ADMIN"
-      ? "rgba(239,68,68,0.1)"
+      ? "rgba(239,68,68,0.12)"
       : r === "OFFICIER"
-        ? "rgba(201,168,76,0.1)"
-        : "rgba(255,255,255,0.05)";
+        ? "rgba(247,127,0,0.12)"
+        : "rgba(0,154,68,0.12)";
+  const roleBorder = (r: string) =>
+    r === "ADMIN"
+      ? "rgba(239,68,68,0.3)"
+      : r === "OFFICIER"
+        ? "rgba(247,127,0,0.3)"
+        : "rgba(0,154,68,0.3)";
+
+  // ✅ Corrigé — fallback si nom vide ou undefined
+  const initiales = (prenom: string, nom: string) =>
+    `${prenom?.[0] ?? ""}${nom?.[0] ?? ""}`.toUpperCase() || "?";
+
+  // ✅ Corrigé — fallback si charCodeAt retourne NaN
+  const avatarColor = (nom: string) => {
+    const colors = [
+      { bg: "rgba(247,127,0,0.2)", text: "#f77f00" },
+      { bg: "rgba(0,154,68,0.2)", text: "#009a44" },
+      { bg: "rgba(179,223,197,0.2)", text: "#b3dfc5" },
+      { bg: "rgba(247,127,0,0.15)", text: "#fddcb5" },
+    ];
+    const code = nom && nom.length > 0 ? nom.charCodeAt(0) : 0;
+    return colors[code % colors.length] ?? colors[0];
+  };
 
   return (
     <>
       <style>{`
         .users-table { display: block; }
         .users-cards { display: none; }
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
           .users-table { display: none; }
           .users-cards { display: flex; flex-direction: column; gap: 0.75rem; }
         }
@@ -265,6 +283,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                         borderRadius: "2px",
                         background: roleBg(u.role),
                         color: roleColor(u.role),
+                        border: `1px solid ${roleBorder(u.role)}`,
                       }}
                     >
                       {u.role}
@@ -309,111 +328,228 @@ export default async function AdminUsersPage({ searchParams }: Props) {
 
         {/* ── CARDS MOBILE ── */}
         <div className="users-cards">
-          {users.map((u) => (
-            <div
-              key={u.id}
-              style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(201,168,76,0.12)",
-                borderRadius: "12px",
-                padding: "1rem 1.25rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.6rem",
-              }}
-            >
-              {/* Ligne 1 — nom + badge rôle */}
+          {users.map((u) => {
+            const av = avatarColor(u.nom);
+            return (
               <div
+                key={u.id}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "0.75rem",
+                  background: "rgba(255,255,255,0.02)",
+                  border: `1px solid ${roleBorder(u.role)}`,
+                  borderRadius: "14px",
+                  overflow: "hidden",
                 }}
               >
-                <span
+                {/* Bande couleur haut selon rôle */}
+                <div
                   style={{
-                    fontWeight: 600,
-                    fontSize: "0.92rem",
-                    color: "white",
+                    height: "4px",
+                    background: `linear-gradient(90deg, ${roleColor(u.role)}, transparent)`,
+                  }}
+                />
+
+                <div
+                  style={{
+                    padding: "1rem 1.25rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
                   }}
                 >
-                  {u.prenom} {u.nom}
-                  {u.id === user.id && (
+                  {/* Ligne 1 — avatar + nom + badge rôle */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        background: av.bg,
+                        border: `1.5px solid ${roleBorder(u.role)}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
+                        color: av.text,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {initiales(u.prenom, u.nom)}
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: 700,
+                            fontSize: "0.92rem",
+                            color: "white",
+                          }}
+                        >
+                          {u.prenom} {u.nom}
+                        </span>
+                        {u.id === user.id && (
+                          <span
+                            style={{
+                              fontSize: "0.62rem",
+                              color: "rgba(255,255,255,0.35)",
+                            }}
+                          >
+                            (moi)
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "rgba(255,255,255,0.4)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          marginTop: "0.15rem",
+                        }}
+                      >
+                        {u.email}
+                      </div>
+                    </div>
+
+                    {/* Badge rôle */}
                     <span
                       style={{
                         fontSize: "0.65rem",
-                        opacity: 0.45,
-                        marginLeft: "0.5rem",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
+                        padding: "0.25rem 0.7rem",
+                        borderRadius: "20px",
+                        background: roleBg(u.role),
+                        color: roleColor(u.role),
+                        border: `1px solid ${roleBorder(u.role)}`,
+                        fontWeight: 600,
+                        flexShrink: 0,
                       }}
                     >
-                      (moi)
+                      {u.role}
                     </span>
+                  </div>
+
+                  {/* Ligne 2 — stats */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.75rem",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div
+                      style={{
+                        flex: 1,
+                        background: "rgba(247,127,0,0.07)",
+                        border: "1px solid rgba(247,127,0,0.15)",
+                        borderRadius: "8px",
+                        padding: "0.5rem 0.875rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "0.15rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "1.1rem",
+                          fontWeight: 700,
+                          color: "#f77f00",
+                        }}
+                      >
+                        {u._count.declarations}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.62rem",
+                          color: "rgba(255,255,255,0.35)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        déclaration{u._count.declarations > 1 ? "s" : ""}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        flex: 2,
+                        background: "rgba(0,154,68,0.07)",
+                        border: "1px solid rgba(0,154,68,0.15)",
+                        borderRadius: "8px",
+                        padding: "0.5rem 0.875rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.15rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "0.62rem",
+                          color: "rgba(255,255,255,0.35)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        Inscrit le
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.78rem",
+                          fontWeight: 500,
+                          color: "#b3dfc5",
+                        }}
+                      >
+                        {formatDate(u.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ligne 3 — changer rôle */}
+                  {u.id !== user.id && (
+                    <div
+                      style={{
+                        borderTop: "1px solid rgba(255,255,255,0.06)",
+                        paddingTop: "0.75rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "0.62rem",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                          color: "rgba(255,255,255,0.3)",
+                          marginBottom: "0.5rem",
+                        }}
+                      >
+                        Modifier le rôle
+                      </div>
+                      <RoleChanger
+                        userId={u.id}
+                        currentRole={u.role as "CITOYEN" | "OFFICIER" | "ADMIN"}
+                      />
+                    </div>
                   )}
-                </span>
-                <span
-                  style={{
-                    fontSize: "0.68rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    padding: "0.2rem 0.65rem",
-                    borderRadius: "2px",
-                    background: roleBg(u.role),
-                    color: roleColor(u.role),
-                    flexShrink: 0,
-                  }}
-                >
-                  {u.role}
-                </span>
-              </div>
-
-              {/* Ligne 2 — email */}
-              <div
-                style={{
-                  fontSize: "0.78rem",
-                  color: "rgba(255,255,255,0.45)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                ✉️ {u.email}
-              </div>
-
-              {/* Ligne 3 — déclarations + inscrit le */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: "1rem",
-                  fontSize: "0.78rem",
-                  color: "rgba(255,255,255,0.45)",
-                  flexWrap: "wrap",
-                }}
-              >
-                <span>
-                  📄 {u._count.declarations} déclaration
-                  {u._count.declarations > 1 ? "s" : ""}
-                </span>
-                <span>📅 Inscrit le {formatDate(u.createdAt)}</span>
-              </div>
-
-              {/* Ligne 4 — changer rôle */}
-              {u.id !== user.id && (
-                <div
-                  style={{
-                    borderTop: "1px solid rgba(255,255,255,0.06)",
-                    paddingTop: "0.6rem",
-                    marginTop: "0.2rem",
-                  }}
-                >
-                  <RoleChanger
-                    userId={u.id}
-                    currentRole={u.role as "CITOYEN" | "OFFICIER" | "ADMIN"}
-                  />
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
 
         {/* Pagination */}
