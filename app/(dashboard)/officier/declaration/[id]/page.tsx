@@ -333,6 +333,7 @@ export default async function OfficierDeclarationPage({ params }: Props) {
               declarationId={id}
               statut={declaration.statut}
               motifRejet={declaration.motifRejet}
+              role={"OFFICIER"}
             />
           </div>
         </div>
