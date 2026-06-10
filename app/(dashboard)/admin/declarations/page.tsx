@@ -92,7 +92,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
       <style>{`
         .decl-table { display: block; }
         .decl-cards { display: none; }
-        @media (max-width: 1000px) {
+        @media (max-width: 950px) {
           .decl-table { display: none; }
           .decl-cards { display: flex; flex-direction: column; gap: 0.75rem; }
         }
@@ -307,7 +307,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
                       </td>
                       <td style={{ padding: "0.875rem 1rem" }}>
                         <Link
-                          href={`/officier/declaration/${d.id}`}
+                          href={`/admin/declarations/${d.id}`}
                           style={{
                             fontSize: "0.72rem",
                             color: "#f77f00",
@@ -330,7 +330,7 @@ export default async function AdminDeclarationsPage({ searchParams }: Props) {
               {declarations.map((d) => (
                 <Link
                   key={d.id}
-                  href={`/officier/declaration/${d.id}`}
+                  href={`/admin/declarations/${d.id}`}
                   style={{ textDecoration: "none" }}
                 >
                   <div

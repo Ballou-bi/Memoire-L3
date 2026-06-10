@@ -54,6 +54,13 @@ export default async function OfficierDeclarationsPage({
 
   const totalPages = Math.ceil(total / limit);
 
+  // ← URL de base selon le rôle
+  const baseUrl = user.role === "ADMIN" ? "/admin" : "/officier";
+  const declarationUrl = (id: string) =>
+    user.role === "ADMIN"
+      ? `/admin/declarations/${id}`
+      : `/officier/declaration/${id}`;
+
   const getPages = () => {
     if (totalPages <= 7)
       return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -73,7 +80,7 @@ export default async function OfficierDeclarationsPage({
   };
 
   const paginationUrl = (p: number) =>
-    `/officier/declaration?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}`;
+    `${baseUrl}/declaration?page=${p}${filterStatut ? `&statut=${filterStatut}` : ""}`;
 
   const FILTRES = [
     { label: "Toutes", value: "" },
@@ -87,7 +94,7 @@ export default async function OfficierDeclarationsPage({
       <style>{`
         .decl-table { display: block; }
         .decl-cards { display: none; }
-        @media (max-width: 1100px) {
+        @media (max-width: 1000px) {
           .decl-table { display: none; }
           .decl-cards { display: flex; flex-direction: column; gap: 0.75rem; }
         }
@@ -111,7 +118,7 @@ export default async function OfficierDeclarationsPage({
           {FILTRES.map((f) => (
             <Link
               key={f.value}
-              href={`/officier/declaration${f.value ? `?statut=${f.value}` : ""}`}
+              href={`${baseUrl}/declaration${f.value ? `?statut=${f.value}` : ""}`}
               style={{
                 padding: "0.4rem 1rem",
                 borderRadius: "2px",
@@ -291,7 +298,7 @@ export default async function OfficierDeclarationsPage({
                       >
                         {d.statut === "EN_ATTENTE" ? (
                           <Link
-                            href={`/officier/declaration/${d.id}`}
+                            href={declarationUrl(d.id)}
                             style={{
                               display: "inline-block",
                               background: "rgba(247,127,0,0.1)",
@@ -311,7 +318,7 @@ export default async function OfficierDeclarationsPage({
                           </Link>
                         ) : (
                           <Link
-                            href={`/officier/declaration/${d.id}`}
+                            href={declarationUrl(d.id)}
                             style={{
                               fontSize: "0.75rem",
                               color: "#f77f00",
@@ -335,7 +342,7 @@ export default async function OfficierDeclarationsPage({
               {declarations.map((d) => (
                 <Link
                   key={d.id}
-                  href={`/officier/declaration/${d.id}`}
+                  href={declarationUrl(d.id)}
                   style={{ textDecoration: "none" }}
                 >
                   <div
@@ -349,7 +356,6 @@ export default async function OfficierDeclarationsPage({
                       gap: "0.6rem",
                     }}
                   >
-                    {/* Ligne 1 — nom enfant + statut */}
                     <div
                       style={{
                         display: "flex",
@@ -370,7 +376,6 @@ export default async function OfficierDeclarationsPage({
                       <StatusBadge statut={d.statut} />
                     </div>
 
-                    {/* Ligne 2 — date + lieu */}
                     <div
                       style={{
                         display: "flex",
@@ -384,7 +389,6 @@ export default async function OfficierDeclarationsPage({
                       <span>📍 {d.lieuNaissance}</span>
                     </div>
 
-                    {/* Ligne 3 — citoyen */}
                     <div
                       style={{
                         fontSize: "0.78rem",
@@ -394,7 +398,6 @@ export default async function OfficierDeclarationsPage({
                       👤 {d.citoyen.prenom} {d.citoyen.nom}
                     </div>
 
-                    {/* Ligne 4 — acte + bouton */}
                     <div
                       style={{
                         display: "flex",

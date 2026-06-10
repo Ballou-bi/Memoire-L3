@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 interface StatsCardProps {
   label: string;
@@ -8,6 +9,7 @@ interface StatsCardProps {
   icon?: React.ReactNode;
   featured?: boolean;
   arrow?: boolean;
+  href?: string;
 }
 
 export default function StatsCard({
@@ -17,6 +19,7 @@ export default function StatsCard({
   color = "white",
   icon,
   arrow = true,
+  href,
 }: StatsCardProps) {
   const themes = {
     orange: {
@@ -59,29 +62,33 @@ export default function StatsCard({
 
   const t = themes[color];
 
-  return (
-    <div
-      style={{
-        background: t.bg,
-        borderRadius: "var(--radius-lg)",
-        padding: "1.5rem",
-        position: "relative",
-        overflow: "hidden",
-        boxShadow: color === "white" ? "var(--shadow-sm)" : "var(--shadow-md)",
-        border: color === "white" ? "1px solid var(--border)" : "none",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-        cursor: "default",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = "var(--shadow-lg)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow =
-          color === "white" ? "var(--shadow-sm)" : "var(--shadow-md)";
-      }}
-    >
+  const cardStyle = {
+    background: t.bg,
+    borderRadius: "var(--radius-lg)",
+    padding: "1.5rem",
+    position: "relative" as const,
+    overflow: "hidden",
+    boxShadow: color === "white" ? "var(--shadow-sm)" : "var(--shadow-md)",
+    border: color === "white" ? "1px solid var(--border)" : "none",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+    cursor: href ? "pointer" : "default",
+    textDecoration: "none",
+    display: "block",
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.boxShadow = "var(--shadow-lg)";
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.boxShadow =
+      color === "white" ? "var(--shadow-sm)" : "var(--shadow-md)";
+  };
+
+  const inner = (
+    <>
       {/* Cercle décoratif */}
       <div
         style={{
@@ -167,6 +174,29 @@ export default function StatsCard({
           {sub}
         </div>
       )}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        style={cardStyle}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      style={cardStyle}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {inner}
     </div>
   );
 }

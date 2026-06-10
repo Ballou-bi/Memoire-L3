@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/dashboard/Header";
 import StatsCard from "@/components/dashboard/StatsCard";
@@ -173,16 +174,36 @@ export default async function AdminStatsPage() {
         >
           {/* Dernières déclarations */}
           <section>
-            <h2
+            <div
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "1.15rem",
-                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
                 marginBottom: "1rem",
               }}
             >
-              Dernières déclarations
-            </h2>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "1.15rem",
+                  fontWeight: 600,
+                  color: "var(--bg-card)",
+                }}
+              >
+                Dernières déclarations
+              </h2>
+              <Link
+                href="/admin/declarations"
+                style={{
+                  fontSize: "0.75rem",
+                  color: "var(--ci-orange)",
+                  textDecoration: "none",
+                  opacity: 0.85,
+                }}
+              >
+                Voir tout →
+              </Link>
+            </div>
             <div
               style={{
                 border: "1px solid rgba(201,168,76,0.1)",
@@ -270,16 +291,36 @@ export default async function AdminStatsPage() {
 
           {/* Performance officiers */}
           <section>
-            <h2
+            <div
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "1.15rem",
-                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
                 marginBottom: "1rem",
               }}
             >
-              Performance des officiers
-            </h2>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "1.15rem",
+                  fontWeight: 600,
+                  color: "var(--bg-card)",
+                }}
+              >
+                Performance des officiers
+              </h2>
+              <Link
+                href="/admin/stats/officiers" // ← au lieu de /admin/users?role=OFFICIER
+                style={{
+                  fontSize: "0.75rem",
+                  color: "var(--ci-orange)",
+                  textDecoration: "none",
+                  opacity: 0.85,
+                }}
+              >
+                Gérer →
+              </Link>
+            </div>
             <div
               style={{
                 border: "1px solid rgba(201,168,76,0.1)",

@@ -8,18 +8,22 @@ interface Props {
   declarationId: string;
   statut: string;
   motifRejet: string | null;
+  role: "OFFICIER" | "ADMIN";
 }
 
 export default function ValidateActions({
   declarationId,
   statut,
   motifRejet,
+  role,
 }: Props) {
   const router = useRouter();
   const [action, setAction] = useState<"VALIDER" | "REJETER" | null>(null);
   const [motif, setMotif] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const retourUrl = role === "ADMIN" ? "/admin/declarations" : "/officier";
 
   const submit = async () => {
     if (action === "REJETER" && motif.trim().length < 10) {
@@ -44,7 +48,7 @@ export default function ValidateActions({
       }
 
       router.refresh();
-      router.push("/officier");
+      router.push(retourUrl);
     } catch {
       setError("Erreur de connexion.");
     } finally {
@@ -86,7 +90,7 @@ export default function ValidateActions({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push("/officier")}
+            onClick={() => router.push(retourUrl)}
           >
             ← Retour à la file
           </Button>
@@ -143,7 +147,6 @@ export default function ValidateActions({
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {/* Récap décision */}
           <div
             style={{
               padding: "0.75rem 1rem",
@@ -162,7 +165,6 @@ export default function ValidateActions({
               : "✗ Vous allez rejeter cette déclaration."}
           </div>
 
-          {/* Motif rejet */}
           {action === "REJETER" && (
             <Textarea
               label="Motif du rejet"
