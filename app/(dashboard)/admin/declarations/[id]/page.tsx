@@ -326,7 +326,7 @@ export default async function AdminDeclarationDetailPage({ params }: Props) {
               declarationId={id}
               statut={declaration.statut}
               motifRejet={declaration.motifRejet}
-              role="ADMIN"
+              role={user.role as "OFFICIER" | "ADMIN"}
             />
           </div>
         </div>
