@@ -970,6 +970,7 @@ export default function LandingClient() {
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   transition: "background 0.2s",
+                  textAlign: "center",
                 }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.background = "rgba(247,127,0,0.08)")
@@ -978,7 +979,7 @@ export default function LandingClient() {
                   (e.currentTarget.style.background = "transparent")
                 }
               >
-                {cta} →
+                {cta}
               </Link>
             </motion.div>
           ))}
